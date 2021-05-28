@@ -1,0 +1,178 @@
+extends _index.pug
+
+block state
+  - const title = 'Text Editor Source HTML ' + version
+  - const scripts = ['../text-editor/index.min.js', '../text-editor.history/index.min.js', '../text-editor.source/index.min.js', '../text-editor.source-x-m-l/index.min.js', 'index.min.js']
+
+block script
+  script
+    | Object.assign(TE.prototype, TE.History.that, TE.Source.that);
+    |
+    | TE.prototype.toggleXML = TE.SourceXML.that.toggle;
+    |
+    | let editor = new TE(document.querySelector('textarea'), '  '),
+    |     {canKeyDown: canKeyDownSource, canKeyDownDent: canKeyDownDentSource, canKeyDownHistory: canKeyDownHistorySource, canKeyUp: canKeyUpSource} = TE.Source,
+    |     {canKeyDown: canKeyDownSourceXML, canMouseDown: canMouseDownSourceXML} = TE.SourceXML,
+    |     {canKeyDown: canKeyDownSourceHTML} = TE.SourceHTML;
+    |
+    | editor.state = Object.assign({
+    |     source: Object.assign({}, TE.Source.state, {
+    |         'h-t-m-l': TE.SourceHTML.state,
+    |         'x-m-l': TE.SourceXML.state
+    |     })
+    | });
+    |
+    | function onKeyDown(e) {
+    |     let key = e.key,
+    |         keys = {a: e.altKey, c: e.ctrlKey, s: e.shiftKey};
+    |     canKeyDownSourceHTML(key, keys, editor) &&
+    |     canKeyDownSourceXML(key, keys, editor) &&
+    |     canKeyDownSource(key, keys, editor) &&
+    |     canKeyDownDentSource(key, keys, editor) &&
+    |     canKeyDownHistorySource(key, keys, editor) ||
+    |     e.preventDefault();
+    | }
+    |
+    | function onKeyUp(e) {
+    |     let key = e.key,
+    |         keys = {a: e.altKey, c: e.ctrlKey, s: e.shiftKey};
+    |     canKeyUpSource(key, keys, editor) || e.preventDefault();
+    | }
+    |
+    | function letSourceEditor() {
+    |     editor.self.classList.remove('source');
+    |     editor.self.removeEventListener('keydown', onKeyDown);
+    |     editor.self.removeEventListener('keyup', onKeyUp);
+    |     editor.loss(true); // Remove all history data
+    | }
+    |
+    | function setSourceEditor() {
+    |     editor.self.classList.add('source');
+    |     editor.self.addEventListener('keydown', onKeyDown, false);
+    |     editor.self.addEventListener('keyup', onKeyUp, false);
+    |     editor.record(); // Record the first history data
+    | }
+    |
+    | setSourceEditor();
+
+block style
+  style
+    | * {
+    |   box-sizing: border-box;
+    | }
+    | :root {
+    |   background: #fff;
+    |   color: #000;
+    |   border-top: 4px solid;
+    |   font: normal normal 16px/1.25 serif;
+    | }
+    | a {
+    |   color: #009;
+    |   text-decoration: none;
+    | }
+    | a, code {
+    |   word-wrap: break-word;
+    | }
+    | code {
+    |   font-family: monospace;
+    |   font-size: 80%;
+    | }
+    | footer, header, main, nav {
+    |   max-width: 700px;
+    |   margin: 0 auto;
+    | }
+    | hr {
+    |   border: 0;
+    |   color: inherit;
+    |   border-top: 1px dashed;
+    |   height: 0;
+    | }
+    | pre {
+    |   white-space: pre-wrap;
+    |   word-wrap: break-word;
+    | }
+    | pre code {
+    |   display: block;
+    |   background: #eee;
+    |   padding: 1em;
+    | }
+    | table {
+    |   width: 100%;
+    | }
+    | td, th {
+    |   text-align: left;
+    |   vertical-align: top;
+    | }
+    | textarea {
+    |   display: block;
+    |   width: 100%;
+    |   height: 20em;
+    | }
+    | .source {
+    |   background: #ccc;
+    |   color: #000;
+    |   border: 1px solid #000;
+    |   padding: 2px;
+    | }
+
+block content
+  header
+    h1= title
+    p HTML source code editor extension for #[a(href='../text-editor/index.html') text editor].
+    hr
+    p Provides a set of key strokes to generate responses like in a typical #[abbr(title='Hyper Text Markup Language') HTML] source code editor.
+  main
+    p(tabindex='0') Previous tabbable element.
+    p: textarea(placeholder!='Code goes here&hellip;' spellcheck='false')
+    p
+      button(onclick='editor.toggleXML.apply(editor, editor.state[\'h-t-m-l\'].tags.b);'): b B
+      = ' '
+      button(onclick='editor.toggleXML.apply(editor, editor.state[\'h-t-m-l\'].tags.i);'): i I
+      = ' '
+      button(onclick='editor.toggleXML.apply(editor, editor.state[\'h-t-m-l\'].tags.u);'): u U
+      = ' '
+      button(onclick='editor.undo();') Undo
+      = ' '
+      button(onclick='editor.redo();') Redo
+    p
+      label
+        input(checked onchange='this.checked ? setSourceEditor() : letSourceEditor();' type='checkbox')
+        = ' '
+        span Enable HTML Source Editor
+    h2 Features
+    ul
+      li <code>&lt;h1&gt;asdf<mark>|</mark>&lt;/h1&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;h2&gt;asdf<mark>|</mark>&lt;/h2&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;h3&gt;asdf<mark>|</mark>&lt;/h3&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;h4&gt;asdf<mark>|</mark>&lt;/h4&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;h5&gt;asdf<mark>|</mark>&lt;/h5&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;h6&gt;asdf<mark>|</mark>&lt;/h6&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;p&gt;asdf<mark>|</mark>&lt;/p&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;p class="foo"&gt;asdf<mark>|</mark>&lt;/p&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;li&gt;asdf<mark>|</mark>&lt;/li&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;li class="foo"&gt;asdf<mark>|</mark>&lt;/li&gt;</code> then press <kbd>↵</kbd>.
+    h2 Usage
+    h4 Browser
+    pre: code
+      | &lt;script src="#[a(href='../text-editor/index.min.js' target='_blank') ./text-editor/index.min.js]"&gt;&lt;/script&gt;
+      | &lt;script src="#[a(href='../text-editor.history/index.min.js' target='_blank') ./text-editor.history/index.min.js]"&gt;&lt;/script&gt;
+      | &lt;script src="#[a(href='../text-editor.source/index.min.js' target='_blank') ./text-editor.source/index.min.js]"&gt;&lt;/script&gt;
+      | &lt;script src="#[a(href='../text-editor.source-x-m-l/index.min.js' target='_blank') ./text-editor.source-x-m-l/index.min.js]"&gt;&lt;/script&gt;
+      | &lt;script src="#[a(href='index.min.js' target='_blank') ./text-editor.source-h-t-m-l/index.min.js]"&gt;&lt;/script&gt;
+      | &lt;script&gt;
+      | Object.assign(TE.prototype, TE.History.that, TE.Source.that);
+      | // TODO
+      | &lt;/script&gt;
+    h4 CommonJS
+    pre: code
+      | TODO
+    h4 ECMAScript
+    pre: code
+      | TODO
+    h3 Methods
+    p TODO
+  footer
+    hr
+    p
+      != '&copy; ' + year + ' '
+      a(href='/') Taufik Nurrohman
