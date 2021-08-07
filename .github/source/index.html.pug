@@ -15,12 +15,7 @@ block script
     |     {canKeyDown: canKeyDownSourceXML, canMouseDown: canMouseDownSourceXML} = TE.SourceXML,
     |     {canKeyDown: canKeyDownSourceHTML} = TE.SourceHTML;
     |
-    | editor.state = Object.assign({
-    |     source: Object.assign({}, TE.Source.state, {
-    |         'h-t-m-l': TE.SourceHTML.state,
-    |         'x-m-l': TE.SourceXML.state
-    |     })
-    | });
+    | Object.assign(editor.state, TE.Source.state, TE.SourceXML.state, TE.SourceHTML.state);
     |
     | function onKeyDown(e) {
     |     let key = e.key,
@@ -65,6 +60,7 @@ block style
     |   color: #000;
     |   border-top: 4px solid;
     |   font: normal normal 16px/1.25 serif;
+    |   position: relative;
     | }
     | a {
     |   color: #009;
@@ -125,11 +121,11 @@ block content
     p(tabindex='0') Previous tabbable element.
     p: textarea(placeholder!='Code goes here&hellip;' spellcheck='false')
     p
-      button(onclick='editor.toggleXML.apply(editor, editor.state[\'h-t-m-l\'].tags.b);'): b B
+      button(onclick='editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.b).record();'): b B
       = ' '
-      button(onclick='editor.toggleXML.apply(editor, editor.state[\'h-t-m-l\'].tags.i);'): i I
+      button(onclick='editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.i).record();'): i I
       = ' '
-      button(onclick='editor.toggleXML.apply(editor, editor.state[\'h-t-m-l\'].tags.u);'): u U
+      button(onclick='editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.u).record();'): u U
       = ' '
       button(onclick='editor.undo();') Undo
       = ' '
@@ -141,6 +137,8 @@ block content
         span Enable HTML Source Editor
     h2 Features
     ul
+      li <code>as<mark>|</mark>df</code> then press <kbd>⌘</kbd><kbd>↵</kbd>.
+      li <code>as<mark>|</mark>df</code> then press <kbd>⌘</kbd><kbd>⇧</kbd><kbd>↵</kbd>.
       li <code>&lt;h1&gt;asdf<mark>|</mark>&lt;/h1&gt;</code> then press <kbd>↵</kbd>.
       li <code>&lt;h2&gt;asdf<mark>|</mark>&lt;/h2&gt;</code> then press <kbd>↵</kbd>.
       li <code>&lt;h3&gt;asdf<mark>|</mark>&lt;/h3&gt;</code> then press <kbd>↵</kbd>.

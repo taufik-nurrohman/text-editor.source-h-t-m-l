@@ -14,6 +14,7 @@
         color: #000;
         border-top: 4px solid;
         font: normal normal 16px/1.25 serif;
+        position: relative;
       }
       a {
         color: #009;
@@ -80,10 +81,12 @@
     <main>
       <p tabindex="0">Previous tabbable element.</p>
       <p><textarea placeholder="Code goes here&hellip;" spellcheck="false"></textarea></p>
-      <p><button onclick="editor.toggleXML.apply(editor, editor.state['h-t-m-l'].tags.b);"><b>B</b></button> <button onclick="editor.toggleXML.apply(editor, editor.state['h-t-m-l'].tags.i);"><i>I</i></button> <button onclick="editor.toggleXML.apply(editor, editor.state['h-t-m-l'].tags.u);"><u>U</u></button> <button onclick="editor.undo();">Undo</button> <button onclick="editor.redo();">Redo</button></p>
+      <p><button onclick="editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.b).record();"><b>B</b></button> <button onclick="editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.i).record();"><i>I</i></button> <button onclick="editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.u).record();"><u>U</u></button> <button onclick="editor.undo();">Undo</button> <button onclick="editor.redo();">Redo</button></p>
       <p><label><input checked onchange="this.checked ? setSourceEditor() : letSourceEditor();" type="checkbox"> <span>Enable HTML Source Editor</span></label></p>
       <h2>Features</h2>
       <ul>
+        <li><code>as<mark>|</mark>df</code> then press <kbd>⌘</kbd><kbd>↵</kbd>.</li>
+        <li><code>as<mark>|</mark>df</code> then press <kbd>⌘</kbd><kbd>⇧</kbd><kbd>↵</kbd>.</li>
         <li><code>&lt;h1&gt;asdf<mark>|</mark>&lt;/h1&gt;</code> then press <kbd>↵</kbd>.</li>
         <li><code>&lt;h2&gt;asdf<mark>|</mark>&lt;/h2&gt;</code> then press <kbd>↵</kbd>.</li>
         <li><code>&lt;h3&gt;asdf<mark>|</mark>&lt;/h3&gt;</code> then press <kbd>↵</kbd>.</li>
@@ -142,12 +145,7 @@ Object.assign(TE.prototype, TE.History.that, TE.Source.that);
               canKeyDown: canKeyDownSourceHTML
           } = TE.SourceHTML;
 
-      editor.state = Object.assign({
-          source: Object.assign({}, TE.Source.state, {
-              'h-t-m-l': TE.SourceHTML.state,
-              'x-m-l': TE.SourceXML.state
-          })
-      });
+      Object.assign(editor.state, TE.Source.state, TE.SourceXML.state, TE.SourceHTML.state);
 
       function onKeyDown(e) {
           let key = e.key,
