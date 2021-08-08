@@ -244,9 +244,7 @@
             t.replace(patternAfter, "", 1);
             let tidy = element[3];
             if (false !== tidy) {
-                if (true === tidy) {
-                    tidy = ["", ""];
-                } else if (isString(tidy)) {
+                if (isString(tidy)) {
                     tidy = [tidy, tidy];
                 } else {
                     tidy = ["", ""];
@@ -264,13 +262,13 @@
                 if (h > 6) {
                     // `<p>`
                     t.wrap('<' + object.p[0] + (attr || toAttributes(object.p[2])) + '>', '</' + object.p[0] + '>');
-                    if (!value[0]) {
+                    if (!value[0] || value[0] === object.h6[1]) {
                         t.insert(object.p[1]);
                     }
                 } else {
                     // `<h1>`, `<h2>`, `<h3>`, `<h4>`, `<h5>`, `<h6>`
                     t.wrap('<' + object['h' + h][0] + (attr || toAttributes(object['h' + h][2])) + '>', '</' + object['h' + h][0] + '>');
-                    if (!value[0]) {
+                    if (!value[0] || value[0] === object.p[1]) {
                         t.insert(object['h' + h][1]);
                     }
                 }
@@ -282,13 +280,13 @@
         let patternBefore = /<(?:pre|code)(?:\s[^>]*)?>(?:\s*<code(?:\s[^>]*)?>)?$/,
             patternAfter = /^(?:<\/code>\s*)?<\/(?:pre|code)>/;
         editor.match([patternBefore, /.*/, patternAfter], function(before, value, after) {
-            let t = this; // ``
+            let t = this,
+                tidy,
+                object = editor.state.sourceHTML.object,
+                attrCode = toAttributes(object.code[2]),
+                attrPre = toAttributes(object.pre[2]); // ``
             t.replace(patternBefore, "", -1);
             t.replace(patternAfter, "", 1);
-            let object = editor.state.sourceHTML.object,
-                tidy,
-                attrCode = toAttributes(object.code[2]),
-                attrPre = toAttributes(object.pre[2]);
             if (after[0]) {
                 // ``
                 if (/^(?:<\/code>\s*)?<\/pre>/.test(after[0])) {
@@ -296,9 +294,7 @@
                 } else if (after[0].slice(0, 7) === '</' + object.code[0] + '>') {
                     tidy = object.pre[3];
                     if (false !== tidy) {
-                        if (true === tidy) {
-                            tidy = ["", ""];
-                        } else if (isString(tidy)) {
+                        if (isString(tidy)) {
                             tidy = [tidy, tidy];
                         } else {
                             tidy = ["", ""];
@@ -310,9 +306,7 @@
             } else {
                 tidy = object.code[3];
                 if (false !== tidy) {
-                    if (true === tidy) {
-                        tidy = ["", ""];
-                    } else if (isString(tidy)) {
+                    if (isString(tidy)) {
                         tidy = [tidy, tidy];
                     } else {
                         tidy = ["", ""];
@@ -357,11 +351,10 @@
                     if (src) {
                         let tidy = object.img[3] || false;
                         if (false !== tidy) {
-                            if (true === tidy) {
-                                tidy = ["", ""];
-                            }
                             if (isString(tidy)) {
                                 tidy = [tidy, tidy];
+                            } else {
+                                tidy = ["", ""];
                             }
                         }
                         that.trim(tidy[0], ""); // TODO: Generate attribute(s)
