@@ -1,19 +1,19 @@
 /*!
  *
  * The MIT License (MIT)
- *
+
  * Copyright © 2021 Taufik Nurrohman <https://github.com/taufik-nurrohman>
- *
+
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the “Software”), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+
  * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -105,7 +105,7 @@
         };
     var that = {};
 
-    function toAttributes(attributes) {
+    function toAttributes$1(attributes) {
         var attribute,
             out = "";
         for (attribute in attributes) {
@@ -156,23 +156,23 @@
             }
             t.trim(tidy[0], tidy[1] || tidy[0]);
         }
-        return t.wrap('<' + name + toAttributes(attributes) + '>', '</' + name + '>');
+        return t.wrap('<' + name + toAttributes$1(attributes) + '>', '</' + name + '>');
     };
     const defaults = {
         sourceHTML: {
             input: (key, value) => W.prompt(key, value),
             object: {
-                a: ['a', 'link text goes here…', {}, ""],
-                area: ['area', false, {}, ""],
-                b: ['strong', 'text goes here…', {}, ""],
+                a: ['a', 'link text goes here…', {}],
+                area: ['area', false, {}],
+                b: ['strong', 'text goes here…', {}],
                 base: ['base', false, {}, '\n'],
                 blockquote: ['blockquote', "", {}, '\n'],
                 br: ['br', false, {},
                     ["", '\n']
                 ],
-                code: ['code', 'code goes here…', {}, ""],
+                code: ['code', 'code goes here…', {}, ' '],
                 col: ['col', false, {}, '\n'],
-                em: ['em', 'text goes here…', {}, ""],
+                em: ['em', 'text goes here…', {}],
                 h1: ['h1', 'title goes here…', {}, '\n'],
                 h2: ['h2', 'title goes here…', {}, '\n'],
                 h3: ['h3', 'title goes here…', {}, '\n'],
@@ -180,7 +180,7 @@
                 h5: ['h5', 'title goes here…', {}, '\n'],
                 h6: ['h6', 'title goes here…', {}, '\n'],
                 hr: ['hr', false, {}, '\n'],
-                i: ['em', 'text goes here…', {}, ""],
+                i: ['em', 'text goes here…', {}],
                 img: ['img', false, {
                     alt: ""
                 }, ' '],
@@ -194,12 +194,12 @@
                 param: ['param', false, {}, '\n'],
                 pre: ['pre', 'text goes here…', {}, '\n'],
                 source: ['source', false, {}, '\n'],
-                strong: ['strong', 'text goes here…', {}, ""],
+                strong: ['strong', 'text goes here…', {}],
                 td: ['td', "", {}, '\n'],
                 th: ['th', "", {}, '\n'],
                 tr: ['tr', "", {}, '\n'],
                 track: ['track', false, {}, '\n'],
-                u: ['u', 'text goes here…', {}, ""],
+                u: ['u', 'text goes here…', {}],
                 ul: ['ul', "", {}, '\n'],
                 wbr: ['wbr', false, {},
                     ["", '\n']
@@ -214,27 +214,65 @@
         tagStart = name => '<(' + name + ')(\\s(?:\'(?:\\\\.|[^\'])*\'|"(?:\\\\.|[^"])*"|[^/>\'"])*)?>',
         tagEnd = name => '</(' + name + ')>';
 
+    function toAttributes(attributes) {
+        if (!attributes) {
+            return "";
+        }
+        let attribute,
+            out = "";
+        for (attribute in attributes) {
+            out += ' ' + attribute + '="' + fromHTML(fromValue(attributes[attribute])) + '"';
+        }
+        return out;
+    }
+
     function toggleBlocks(editor) {
         let patternBefore = /<(?:h([1-6])|p)(\s[^>]*)?>$/,
             patternAfter = /^<\/(?:h[1-6]|p)>/;
         editor.match([patternBefore, /.*/, patternAfter], function(before, value, after) {
             let t = this,
                 h = +(before[1] || 0),
-                attr = before[2] || ""; // ``
+                attr = before[2] || "",
+                object = editor.state.sourceHTML.object || {},
+                element = before[0] ? object[before[0].slice(1, -1).split(/\s/)[0]] : ["", "", {},
+                    ["", ""]
+                ];
+            if (!attr && element[2]) {
+                attr = toAttributes(element[2]);
+            } // ``
             t.replace(patternBefore, "", -1);
             t.replace(patternAfter, "", 1);
-            t.trim('\n', '\n');
+            let tidy = element[3];
+            if (false !== tidy) {
+                if (true === tidy) {
+                    tidy = ["", ""];
+                } else if (isString(tidy)) {
+                    tidy = [tidy, tidy];
+                } else {
+                    tidy = ["", ""];
+                }
+                t.trim(tidy[0], tidy[1] || tidy[0]);
+            }
             if (!h) {
                 // `<h1>`
-                t.wrap('<h1' + attr + '>', '</h1>');
+                t.wrap('<' + object.h1[0] + (attr || toAttributes(object.h1[2])) + '>', '</' + object.h1[0] + '>');
+                if (!value[0]) {
+                    t.insert(object.h1[1]);
+                }
             } else {
                 ++h;
                 if (h > 6) {
                     // `<p>`
-                    t.wrap('<p' + attr + '>', '</p>');
+                    t.wrap('<' + object.p[0] + (attr || toAttributes(object.p[2])) + '>', '</' + object.p[0] + '>');
+                    if (!value[0]) {
+                        t.insert(object.p[1]);
+                    }
                 } else {
                     // `<h1>`, `<h2>`, `<h3>`, `<h4>`, `<h5>`, `<h6>`
-                    t.wrap('<h' + h + attr + '>', '</h' + h + '>');
+                    t.wrap('<' + object['h' + h][0] + (attr || toAttributes(object['h' + h][2])) + '>', '</' + object['h' + h][0] + '>');
+                    if (!value[0]) {
+                        t.insert(object['h' + h][1]);
+                    }
                 }
             }
         });
@@ -247,15 +285,41 @@
             let t = this; // ``
             t.replace(patternBefore, "", -1);
             t.replace(patternAfter, "", 1);
+            let object = editor.state.sourceHTML.object,
+                tidy,
+                attrCode = toAttributes(object.code[2]),
+                attrPre = toAttributes(object.pre[2]);
             if (after[0]) {
                 // ``
                 if (/^(?:<\/code>\s*)?<\/pre>/.test(after[0])) {
-                    t.trim(' ', ' ').insert(decode(editor.$().value)); // `<pre><code> … </code></pre>`
-                } else if (after[0].slice(0, 7) === '</code>') {
-                    t.trim('\n', '\n').wrap('<pre><code>', '</code></pre>');
+                    t.trim("", "").insert(decode(editor.$().value)); // `<pre><code> … </code></pre>`
+                } else if (after[0].slice(0, 7) === '</' + object.code[0] + '>') {
+                    tidy = object.pre[3];
+                    if (false !== tidy) {
+                        if (true === tidy) {
+                            tidy = ["", ""];
+                        } else if (isString(tidy)) {
+                            tidy = [tidy, tidy];
+                        } else {
+                            tidy = ["", ""];
+                        }
+                        t.trim(tidy[0], tidy[1] || tidy[0]);
+                    }
+                    t.wrap('<' + object.pre[0] + attrPre + '><' + object.code[0] + attrCode + '>', '</' + object.code[0] + '></' + object.pre[0] + '>');
                 } // `<code> … </code>`
             } else {
-                t.trim(' ', ' ').wrap('<code>', '</code>').insert(encode(editor.$().value));
+                tidy = object.code[3];
+                if (false !== tidy) {
+                    if (true === tidy) {
+                        tidy = ["", ""];
+                    } else if (isString(tidy)) {
+                        tidy = [tidy, tidy];
+                    } else {
+                        tidy = ["", ""];
+                    }
+                    t.trim(tidy[0], tidy[1] || tidy[0]);
+                }
+                t.wrap('<' + object.code[0] + attrCode + '>', '</' + object.code[0] + '>').insert(encode(editor.$().value || object.code[1]));
             }
         });
     }
@@ -274,9 +338,9 @@
         s
     }, that) {
         let state = that.state,
-            object = state.sourceHTML?.object || {};
-        state.sourceHTML?.tab || state.tab || '\t';
-        let input = state.sourceHTML?.input;
+            object = state.sourceHTML.object || {};
+        state.sourceHTML.tab || state.tab || '\t';
+        let input = state.sourceHTML.input;
         if (c) {
             if ('b' === key) {
                 return toggle.apply(that, object.b), false;
@@ -345,22 +409,19 @@
                     lineMatch = lineBefore.match(/^(\s+)/),
                     lineMatchIndent = lineMatch && lineMatch[1] || "",
                     m;
-                if ("" === value) {
-                    m = lineAfter.match(toPattern(tagEnd(tagName) + '\\s*$', ""));
-                    let n = m && m[1] || object.p[0];
-                    if (s) {
-                        that.select(start - toCount(lineBefore));
-                        toggle.apply(that, object[n] || object.p);
-                        that.replace(toPattern('^(' + tagEnd(tagName) + ')\\s*(.)', ""), '$1\n' + lineMatchIndent + '$3', 1);
-                        that.replace(toPattern('(^|\\n)\\s*(' + tagStart(tagName) + ')$', ""), '$1' + lineMatchIndent + '$2', -1);
-                        return that.record(), false;
-                    }
-                    that.select(end + toCount(lineAfter));
-                    toggle.apply(that, object[n] || object.p);
-                    that.replace(toPattern('(.)\\s*(' + tagStart(tagName) + ')$', ""), '$1\n' + lineMatchIndent + '$2', -1);
+                m = lineAfter.match(toPattern(tagEnd(tagName) + '\\s*$', ""));
+                let name = m && m[1] || object.p[0];
+                if (s) {
+                    that.select(start - toCount(lineBefore));
+                    toggle.apply(that, object[name] || object.p);
+                    that.replace(toPattern('^(' + tagEnd(tagName) + ')\\s*(.)', ""), '$1\n' + lineMatchIndent + '$3', 1);
+                    that.replace(toPattern('(^|\\n)\\s*(' + tagStart(tagName) + ')$', ""), '$1' + lineMatchIndent + '$2', -1);
                     return that.record(), false;
                 }
-                return true;
+                that.select(end + toCount(lineAfter));
+                toggle.apply(that, object[name] || object.p);
+                that.replace(toPattern('(.)\\s*(' + tagStart(tagName) + ')$', ""), '$1\n' + lineMatchIndent + '$2', -1);
+                return that.record(), false;
             }
         } // Do nothing
         if (a || c) {
