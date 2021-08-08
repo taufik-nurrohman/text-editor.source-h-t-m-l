@@ -11,7 +11,7 @@ block script
     | TE.prototype.toggleXML = TE.SourceXML.that.toggle;
     |
     | let editor = new TE(document.querySelector('textarea'), '  '),
-    |     {canKeyDown: canKeyDownSource, canKeyDownDent: canKeyDownDentSource, canKeyDownHistory: canKeyDownHistorySource, canKeyUp: canKeyUpSource} = TE.Source,
+    |     {canKeyDown: canKeyDownSource, canKeyDownDent: canKeyDownDentSource, canKeyDownEnter: canKeyDownEnterSource, canKeyDownHistory: canKeyDownHistorySource, canKeyDownMove: canKeyDownMoveSource, canKeyUp: canKeyUpSource} = TE.Source,
     |     {canKeyDown: canKeyDownSourceXML, canMouseDown: canMouseDownSourceXML} = TE.SourceXML,
     |     {canKeyDown: canKeyDownSourceHTML} = TE.SourceHTML;
     |
@@ -23,8 +23,10 @@ block script
     |     canKeyDownSourceHTML(key, keys, editor) &&
     |     canKeyDownSourceXML(key, keys, editor) &&
     |     canKeyDownSource(key, keys, editor) &&
+    |     canKeyDownEnterSource(key, keys, editor) &&
     |     canKeyDownDentSource(key, keys, editor) &&
-    |     canKeyDownHistorySource(key, keys, editor) ||
+    |     canKeyDownHistorySource(key, keys, editor) &&
+    |     canKeyDownMoveSource(key, keys, editor) ||
     |     e.preventDefault();
     | }
     |
@@ -83,6 +85,14 @@ block style
     |   border-top: 1px dashed;
     |   height: 0;
     | }
+    | mark {
+    |   display: inline-block;
+    |   vertical-align: middle;
+    |   height: 1.25em;
+    |   background: #ff0;
+    |   border: 1px solid #f00;
+    |   min-width: 3px;
+    | }
     | pre {
     |   white-space: pre-wrap;
     |   word-wrap: break-word;
@@ -121,11 +131,11 @@ block content
     p(tabindex='0') Previous tabbable element.
     p: textarea(placeholder!='Code goes here&hellip;' spellcheck='false')
     p
-      button(onclick='editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.b).record();'): b B
+      button(onclick='editor.toggleXML.apply(editor, editor.state.sourceHTML.object.b).record();'): b B
       = ' '
-      button(onclick='editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.i).record();'): i I
+      button(onclick='editor.toggleXML.apply(editor, editor.state.sourceHTML.object.i).record();'): i I
       = ' '
-      button(onclick='editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.u).record();'): u U
+      button(onclick='editor.toggleXML.apply(editor, editor.state.sourceHTML.object.u).record();'): u U
       = ' '
       button(onclick='editor.undo();') Undo
       = ' '
@@ -137,18 +147,23 @@ block content
         span Enable HTML Source Editor
     h2 Features
     ul
-      li <code>as<mark>|</mark>df</code> then press <kbd>⌘</kbd><kbd>↵</kbd>.
-      li <code>as<mark>|</mark>df</code> then press <kbd>⌘</kbd><kbd>⇧</kbd><kbd>↵</kbd>.
-      li <code>&lt;h1&gt;asdf<mark>|</mark>&lt;/h1&gt;</code> then press <kbd>↵</kbd>.
-      li <code>&lt;h2&gt;asdf<mark>|</mark>&lt;/h2&gt;</code> then press <kbd>↵</kbd>.
-      li <code>&lt;h3&gt;asdf<mark>|</mark>&lt;/h3&gt;</code> then press <kbd>↵</kbd>.
-      li <code>&lt;h4&gt;asdf<mark>|</mark>&lt;/h4&gt;</code> then press <kbd>↵</kbd>.
-      li <code>&lt;h5&gt;asdf<mark>|</mark>&lt;/h5&gt;</code> then press <kbd>↵</kbd>.
-      li <code>&lt;h6&gt;asdf<mark>|</mark>&lt;/h6&gt;</code> then press <kbd>↵</kbd>.
-      li <code>&lt;p&gt;asdf<mark>|</mark>&lt;/p&gt;</code> then press <kbd>↵</kbd>.
-      li <code>&lt;p class="foo"&gt;asdf<mark>|</mark>&lt;/p&gt;</code> then press <kbd>↵</kbd>.
-      li <code>&lt;li&gt;asdf<mark>|</mark>&lt;/li&gt;</code> then press <kbd>↵</kbd>.
-      li <code>&lt;li class="foo"&gt;asdf<mark>|</mark>&lt;/li&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;h1&gt;asdf<mark></mark>&lt;/h1&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;h2&gt;asdf<mark></mark>&lt;/h2&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;h3&gt;asdf<mark></mark>&lt;/h3&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;h4&gt;asdf<mark></mark>&lt;/h4&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;h5&gt;asdf<mark></mark>&lt;/h5&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;h6&gt;asdf<mark></mark>&lt;/h6&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;li class="foo"&gt;asdf<mark></mark>&lt;/li&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;li&gt;asdf<mark></mark>&lt;/li&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;p class="foo"&gt;asdf<mark></mark>&lt;/p&gt;</code> then press <kbd>↵</kbd>.
+      li <code>&lt;p&gt;asdf<mark></mark>&lt;/p&gt;</code> then press <kbd>↵</kbd>.
+      li Press <kbd>⌘</kbd><kbd>b</kbd>.
+      li Press <kbd>⌘</kbd><kbd>g</kbd>.
+      li Press <kbd>⌘</kbd><kbd>h</kbd>.
+      li Press <kbd>⌘</kbd><kbd>i</kbd>.
+      li Press <kbd>⌘</kbd><kbd>k</kbd>.
+      li Press <kbd>⌘</kbd><kbd>l</kbd>.
+      li Press <kbd>⌘</kbd><kbd>u</kbd>.
     h2 Usage
     h4 Browser
     pre: code

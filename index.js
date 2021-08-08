@@ -33,6 +33,9 @@
     var isDefined = function isDefined(x) {
         return 'undefined' !== typeof x;
     };
+    var isFunction = function isFunction(x) {
+        return 'function' === typeof x;
+    };
     var isInstance = function isInstance(x, of ) {
         return x && isSet( of ) && x instanceof of ;
     };
@@ -50,6 +53,9 @@
     };
     var isSet = function isSet(x) {
         return isDefined(x) && !isNull(x);
+    };
+    var isString = function isString(x) {
+        return 'string' === typeof x;
     };
     var fromHTML = function fromHTML(x) {
         return x.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;');
@@ -107,12 +113,15 @@
         }
         return out;
     }
-    that.toggle = function(name, content, attributes) {
+    that.toggle = function(name, content, attributes, tidy) {
         if (content === void 0) {
             content = "";
         }
         if (attributes === void 0) {
             attributes = {};
+        }
+        if (tidy === void 0) {
+            tidy = false;
         }
         var t = this,
             _t$$ = t.$(),
@@ -138,52 +147,63 @@
         if (!value && content) {
             t.insert(content);
         }
+        if (false !== tidy) {
+            if (true === tidy) {
+                tidy = ["", ""];
+            }
+            if (isString(tidy)) {
+                tidy = [tidy, tidy];
+            }
+            t.trim(tidy[0], tidy[1] || tidy[0]);
+        }
         return t.wrap('<' + name + toAttributes(attributes) + '>', '</' + name + '>');
     };
     const defaults = {
-        source: {
-            prompt: (key, value) => W.prompt(key, value)
-        },
         sourceHTML: {
-            elements: {
-                a: ['a', 'link text goes here…', {}],
-                area: ['area', false, {}],
-                b: ['strong', 'text goes here…', {}],
-                base: ['base', false, {}],
-                blockquote: ['blockquote', "", {}],
-                br: ['br', false, {}],
-                code: ['code', 'code goes here…', {}],
-                col: ['col', false, {}],
-                em: ['em', 'text goes here…', {}],
-                h1: ['h1', 'title goes here…', {}],
-                h2: ['h2', 'title goes here…', {}],
-                h3: ['h3', 'title goes here…', {}],
-                h4: ['h4', 'title goes here…', {}],
-                h5: ['h5', 'title goes here…', {}],
-                h6: ['h6', 'title goes here…', {}],
-                hr: ['hr', false, {}],
-                i: ['em', 'text goes here…', {}],
+            input: (key, value) => W.prompt(key, value),
+            object: {
+                a: ['a', 'link text goes here…', {}, ""],
+                area: ['area', false, {}, ""],
+                b: ['strong', 'text goes here…', {}, ""],
+                base: ['base', false, {}, '\n'],
+                blockquote: ['blockquote', "", {}, '\n'],
+                br: ['br', false, {},
+                    ["", '\n']
+                ],
+                code: ['code', 'code goes here…', {}, ""],
+                col: ['col', false, {}, '\n'],
+                em: ['em', 'text goes here…', {}, ""],
+                h1: ['h1', 'title goes here…', {}, '\n'],
+                h2: ['h2', 'title goes here…', {}, '\n'],
+                h3: ['h3', 'title goes here…', {}, '\n'],
+                h4: ['h4', 'title goes here…', {}, '\n'],
+                h5: ['h5', 'title goes here…', {}, '\n'],
+                h6: ['h6', 'title goes here…', {}, '\n'],
+                hr: ['hr', false, {}, '\n'],
+                i: ['em', 'text goes here…', {}, ""],
                 img: ['img', false, {
                     alt: ""
-                }],
-                input: ['input', false, {}],
-                li: ['li', "", {}],
-                link: ['link', false, {}],
-                meta: ['meta', false, {}],
-                ol: ['ol', "", {}],
-                option: ['option', 'option goes here…', {}],
-                p: ['p', 'paragraph goes here…', {}],
-                param: ['param', false, {}],
-                pre: ['pre', 'text goes here…', {}],
-                source: ['source', false, {}],
-                strong: ['strong', 'text goes here…', {}],
-                td: ['td', "", {}],
-                th: ['th', "", {}],
-                tr: ['tr', "", {}],
-                track: ['track', false, {}],
-                u: ['u', 'text goes here…', {}],
-                ul: ['ul', "", {}],
-                wbr: ['wbr', false, {}]
+                }, ' '],
+                input: ['input', false, {}, ' '],
+                li: ['li', "", {}, '\n'],
+                link: ['link', false, {}, '\n'],
+                meta: ['meta', false, {}, '\n'],
+                ol: ['ol', "", {}, '\n'],
+                option: ['option', 'option goes here…', {}, '\n'],
+                p: ['p', 'paragraph goes here…', {}, '\n'],
+                param: ['param', false, {}, '\n'],
+                pre: ['pre', 'text goes here…', {}, '\n'],
+                source: ['source', false, {}, '\n'],
+                strong: ['strong', 'text goes here…', {}, ""],
+                td: ['td', "", {}, '\n'],
+                th: ['th', "", {}, '\n'],
+                tr: ['tr', "", {}, '\n'],
+                track: ['track', false, {}, '\n'],
+                u: ['u', 'text goes here…', {}, ""],
+                ul: ['ul', "", {}, '\n'],
+                wbr: ['wbr', false, {},
+                    ["", '\n']
+                ]
             }
         }
     };
@@ -254,23 +274,63 @@
         s
     }, that) {
         let state = that.state,
-            elements = state.sourceHTML?.elements || {};
-        state.tab || '\t';
+            object = state.sourceHTML?.object || {};
+        state.sourceHTML?.tab || state.tab || '\t';
+        let input = state.sourceHTML?.input;
         if (c) {
             if ('b' === key) {
-                return toggle.apply(that, elements.b), false;
+                return toggle.apply(that, object.b), false;
+            }
+            if ('g' === key) {
+                if (isFunction(input)) {
+                    let value = that.$().value,
+                        src = input('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : 'http://');
+                    object.img[2].src = src;
+                    if (value) {
+                        object.img[2].alt = value;
+                        that.record(); // Record selection
+                    }
+                    if (src) {
+                        let tidy = object.img[3] || false;
+                        if (false !== tidy) {
+                            if (true === tidy) {
+                                tidy = ["", ""];
+                            }
+                            if (isString(tidy)) {
+                                tidy = [tidy, tidy];
+                            }
+                        }
+                        that.trim(tidy[0], ""); // TODO: Generate attribute(s)
+                        that.insert('<' + object.img[0] + ' alt="' + value + '" src="' + src + '">' + (tidy[1] || tidy[0]), -1, true);
+                    }
+                }
+                return that.record(), false;
             }
             if ('h' === key) {
                 return toggleBlocks(that), that.record(), false;
             }
             if ('i' === key) {
-                return toggle.apply(that, elements.i), false;
+                return toggle.apply(that, object.i), false;
             }
             if ('k' === key) {
                 return toggleCodes(that), that.record(), false;
             }
+            if ('l' === key) {
+                if (isFunction(input)) {
+                    let value = that.$().value,
+                        href = input('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : 'http://');
+                    object.a[2].href = href;
+                    if (value) {
+                        that.record(); // Record selection
+                    }
+                    if (href) {
+                        toggle.apply(that, object.a);
+                    }
+                }
+                return that.record(), false;
+            }
             if ('u' === key) {
-                return toggle.apply(that, elements.u), false;
+                return toggle.apply(that, object.u), false;
             }
             if ('Enter' === key) {
                 let {
@@ -287,16 +347,16 @@
                     m;
                 if ("" === value) {
                     m = lineAfter.match(toPattern(tagEnd(tagName) + '\\s*$', ""));
-                    let n = m && m[1] || elements.p[0];
+                    let n = m && m[1] || object.p[0];
                     if (s) {
                         that.select(start - toCount(lineBefore));
-                        toggle.apply(that, elements[n] || elements.p);
+                        toggle.apply(that, object[n] || object.p);
                         that.replace(toPattern('^(' + tagEnd(tagName) + ')\\s*(.)', ""), '$1\n' + lineMatchIndent + '$3', 1);
                         that.replace(toPattern('(^|\\n)\\s*(' + tagStart(tagName) + ')$', ""), '$1' + lineMatchIndent + '$2', -1);
                         return that.record(), false;
                     }
                     that.select(end + toCount(lineAfter));
-                    toggle.apply(that, elements[n] || elements.p);
+                    toggle.apply(that, object[n] || object.p);
                     that.replace(toPattern('(.)\\s*(' + tagStart(tagName) + ')$', ""), '$1\n' + lineMatchIndent + '$2', -1);
                     return that.record(), false;
                 }
@@ -322,7 +382,7 @@
                     let continueable = ['li', 'option', 'p', 'td', 'th'],
                         n;
                     for (let i = 0, j = toCount(continueable); i < j; ++i) {
-                        if (!(n = elements[continueable[i]])) {
+                        if (!(n = object[continueable[i]])) {
                             continue;
                         }
                         n = n[0];
@@ -337,8 +397,8 @@
                         }
                     }
                     for (let i = 1; i < 7; ++i) {
-                        if ('</' + elements['h' + i][0] + '>' === lineAfter && lineBefore.match(toPattern('^\\s*' + tagStart(elements['h' + i][0]), ""))) {
-                            return that.insert('</' + elements['h' + i][0] + '>\n' + lineMatchIndent + '<' + elements.p[0] + '>', -1).replace(toPattern('^' + tagEnd(elements['h' + i][0])), '</' + elements.p[0] + '>', 1).record(), false;
+                        if ('</' + object['h' + i][0] + '>' === lineAfter && lineBefore.match(toPattern('^\\s*' + tagStart(object['h' + i][0]), ""))) {
+                            return that.insert('</' + object['h' + i][0] + '>\n' + lineMatchIndent + '<' + object.p[0] + '>', -1).replace(toPattern('^' + tagEnd(object['h' + i][0])), '</' + object.p[0] + '>', 1).record(), false;
                         }
                     }
                 }
