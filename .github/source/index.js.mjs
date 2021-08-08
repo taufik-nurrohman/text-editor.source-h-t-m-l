@@ -95,7 +95,7 @@ function toggleBlocks(editor) {
         if (!h) {
             // `<h1>`
             t.wrap('<' + object.h1[0] + (attr || toAttributes(object.h1[2])) + '>', '</' + object.h1[0] + '>');
-            if (!value[0]) {
+            if (!value[0] || value[0] === object.p[1]) {
                 t.insert(object.h1[1]);
             }
         } else {

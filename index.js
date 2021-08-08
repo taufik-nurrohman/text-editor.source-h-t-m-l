@@ -106,6 +106,9 @@
     var that = {};
 
     function toAttributes$1(attributes) {
+        if (!attributes) {
+            return "";
+        }
         var attribute,
             out = "";
         for (attribute in attributes) {
@@ -148,11 +151,10 @@
             t.insert(content);
         }
         if (false !== tidy) {
-            if (true === tidy) {
-                tidy = ["", ""];
-            }
             if (isString(tidy)) {
                 tidy = [tidy, tidy];
+            } else {
+                tidy = ["", ""];
             }
             t.trim(tidy[0], tidy[1] || tidy[0]);
         }
@@ -254,7 +256,7 @@
             if (!h) {
                 // `<h1>`
                 t.wrap('<' + object.h1[0] + (attr || toAttributes(object.h1[2])) + '>', '</' + object.h1[0] + '>');
-                if (!value[0]) {
+                if (!value[0] || value[0] === object.p[1]) {
                     t.insert(object.h1[1]);
                 }
             } else {
