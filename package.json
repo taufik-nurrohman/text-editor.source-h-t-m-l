@@ -3,17 +3,17 @@
   "browser": "index.min.js",
   "bugs": "https://github.com/taufik-nurrohman/text-editor.source-h-t-m-l/issues",
   "dependencies": {
-    "@taufik-nurrohman/from": "^0.0.7",
+    "@taufik-nurrohman/from": "^0.0.8",
     "@taufik-nurrohman/pattern": "^0.1.7",
-    "@taufik-nurrohman/text-editor": "^3.3.4",
-    "@taufik-nurrohman/text-editor.history": "^2.1.6",
-    "@taufik-nurrohman/text-editor.source": "^2.1.11",
-    "@taufik-nurrohman/text-editor.source-x-m-l": "^1.1.11",
+    "@taufik-nurrohman/text-editor": "^3.3.7",
+    "@taufik-nurrohman/text-editor.history": "^2.1.9",
+    "@taufik-nurrohman/text-editor.source": "^2.1.15",
+    "@taufik-nurrohman/text-editor.source-x-m-l": "^1.1.13",
     "@taufik-nurrohman/to": "^0.0.18"
   },
   "description": "Provides a set of key strokes to generate responses like in a typical HTML source code editor.",
   "devDependencies": {
-    "@taufik-nurrohman/factory": "^0.1.18"
+    "@taufik-nurrohman/factory": "^0.1.19"
   },
   "exports": {
     "import": "./index.mjs",
