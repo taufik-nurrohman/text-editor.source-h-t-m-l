@@ -89,7 +89,7 @@
     <main>
       <p tabindex="0">Previous tabbable element.</p>
       <p><textarea placeholder="Code goes here&hellip;" spellcheck="false"></textarea></p>
-      <p><button onclick="editor.toggleXML.apply(editor, editor.state.sourceHTML.object.b).record();"><b>B</b></button> <button onclick="editor.toggleXML.apply(editor, editor.state.sourceHTML.object.i).record();"><i>I</i></button> <button onclick="editor.toggleXML.apply(editor, editor.state.sourceHTML.object.u).record();"><u>U</u></button> <button onclick="editor.undo();">Undo</button> <button onclick="editor.redo();">Redo</button></p>
+      <p><button onclick="editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.b).record();"><b>B</b></button> <button onclick="editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.i).record();"><i>I</i></button> <button onclick="editor.toggleXML.apply(editor, editor.state.sourceHTML.elements.u).record();"><u>U</u></button> <button onclick="editor.undo();">Undo</button> <button onclick="editor.redo();">Redo</button></p>
       <p><label><input checked onchange="this.checked ? setSourceEditor() : letSourceEditor();" type="checkbox"> <span>Enable HTML Source Editor</span></label></p>
       <h2>Features</h2>
       <ul>
@@ -190,17 +190,33 @@ Object.assign(TE.prototype, TE.History.that, TE.Source.that);
           canKeyUpSource(key, keys, editor) || e.preventDefault();
       }
 
+      function onMouseDown(e) {
+          let key = e.key,
+              keys = {
+                  a: e.altKey,
+                  c: e.ctrlKey,
+                  s: e.shiftKey
+              };
+          canMouseDownSourceXML(key, keys, editor) || e.preventDefault();
+      }
+
       function letSourceEditor() {
           editor.self.classList.remove('source');
+          editor.self.parentNode.nextElementSibling.style.display = 'none';
           editor.self.removeEventListener('keydown', onKeyDown);
           editor.self.removeEventListener('keyup', onKeyUp);
+          editor.self.removeEventListener('mousedown', onMouseDown);
+          editor.self.removeEventListener('touchstart', onMouseDown);
           editor.loss(true); // Remove all history data
       }
 
       function setSourceEditor() {
           editor.self.classList.add('source');
+          editor.self.parentNode.nextElementSibling.style.display = "";
           editor.self.addEventListener('keydown', onKeyDown, false);
           editor.self.addEventListener('keyup', onKeyUp, false);
+          editor.self.addEventListener('mousedown', onMouseDown, false);
+          editor.self.addEventListener('touchstart', onMouseDown, false);
           editor.record(); // Record the first history data
       }
 
