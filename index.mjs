@@ -1,9 +1,11 @@
-import {W} from '@taufik-nurrohman/document';
+import {W, theLocation} from '@taufik-nurrohman/document';
 import {esc, toPattern} from '@taufik-nurrohman/pattern';
 import {fromHTML, fromStates, fromValue} from '@taufik-nurrohman/from';
 import {isArray, isFunction, isSet, isString} from '@taufik-nurrohman/is';
-import {that} from '@taufik-nurrohman/text-editor.source-x-m-l';
+import {that, toAttributes} from '@taufik-nurrohman/text-editor.source-x-m-l';
 import {toCount} from '@taufik-nurrohman/to';
+
+const protocol = theLocation.protocol;
 
 const defaults = {
     source: {
@@ -69,17 +71,6 @@ let tagComment = '<!--([\\s\\S](?!-->)*)-->',
     tagEnd = name => '</(' + name + ')>',
     tagVoid = name => '<(' + name + ')(\\s(?:\'(?:\\\\.|[^\'])*\'|"(?:\\\\.|[^"])*"|[^/>\'"])*)?/?>';
 
-function toAttributes(attributes) {
-    if (!attributes) {
-        return "";
-    }
-    let attribute, out = "";
-    for (attribute in attributes) {
-        out += ' ' + attribute + '="' + fromHTML(fromValue(attributes[attribute])) + '"';
-    }
-    return out;
-}
-
 function toTidy(tidy) {
     if (false !== tidy) {
         if (isString(tidy)) {
@@ -102,14 +93,14 @@ function toggleBlocks(that) {
             h = +(before[1] || 0),
             attr = before[2] || "",
             elements = that.state.sourceHTML.elements || {},
-            element = before[0] ? elements[before[0].slice(1, -1).split(/\s/)[0]] : ["", "", {}, ["", ""]];
+            element = before[0] ? elements[before[0].slice(1, -1).split(/\s/)[0]] : ["", "", {}];
         if (!attr && element[2]) {
             attr = toAttributes(element[2]);
         }
         // ``
         t.replace(patternBefore, "", -1);
         t.replace(patternAfter, "", 1);
-        let tidy = element[3];
+        let tidy = element[3] || elements.h1[3];
         if (false !== (tidy = toTidy(tidy))) {
             t.trim(tidy[0], tidy[1]);
         }
@@ -248,9 +239,12 @@ export function canKeyDown(key, {a, c, s}, that) {
         }
         if ('g' === key) {
             if (isFunction(prompt)) {
-                let src = prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : 'http://'),
-                    element = elements.img;
-                if (src) {
+                prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : protocol + '//').then(src => {
+                    if (!src) {
+                        that.focus();
+                        return;
+                    }
+                    let element = elements.img;
                     if (value) {
                         element[2].alt = value;
                         that.record(); // Record selection
@@ -272,7 +266,7 @@ export function canKeyDown(key, {a, c, s}, that) {
                     } else {
                         that.insert('<' + element[0] + toAttributes(element[2]) + '>' + (false !== tidy ? tidy[1] : ""), -1, true);
                     }
-                }
+                });
             }
             return that.record(), false;
         }
@@ -287,21 +281,24 @@ export function canKeyDown(key, {a, c, s}, that) {
         }
         if ('l' === key) {
             if (isFunction(prompt)) {
-                let href = prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : 'http://'),
-                    element = elements.a;
-                if (value) {
-                    that.record(); // Record selection
-                }
-                if (href) {
+                prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : protocol + '//').then(href => {
+                    if (!href) {
+                        that.focus();
+                        return;
+                    }
+                    let element = elements.a;
+                    if (value) {
+                        that.record(); // Record selection
+                    }
                     element[2].href = href;
                     let local = /[.\/?&#]/.test(href[0]) || /^(data|javascript|mailto):/.test(href) || -1 === href.indexOf('://'),
-                        attr = {};
+                        extras = {};
                     if (!local) {
-                        attr.rel = 'nofollow';
-                        attr.target = '_blank';
+                        extras.rel = 'nofollow';
+                        extras.target = '_blank';
                     }
-                    toggle.apply(that, [element[0], element[1], fromStates(attr, element[2]), element[3]]);
-                }
+                    toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), element[3]]);
+                });
             }
             return that.record(), false;
         }

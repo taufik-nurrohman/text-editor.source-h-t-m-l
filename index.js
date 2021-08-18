@@ -27,6 +27,9 @@
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) : typeof define === 'function' && define.amd ? define(['exports'], factory) : (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory((global.TE = global.TE || {}, global.TE.SourceHTML = {})));
 })(this, function(exports) {
     'use strict';
+    var hasValue = function hasValue(x, data) {
+        return -1 !== data.indexOf(x);
+    };
     var isArray = function isArray(x) {
         return Array.isArray(x);
     };
@@ -57,6 +60,12 @@
     var isString = function isString(x) {
         return 'string' === typeof x;
     };
+    var toCount = function toCount(x) {
+        return x.length;
+    };
+    var toObjectKeys = function toObjectKeys(x) {
+        return Object.keys(x);
+    };
     var fromHTML = function fromHTML(x) {
         return x.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;');
     };
@@ -64,7 +73,28 @@
         for (var _len = arguments.length, lot = new Array(_len), _key = 0; _key < _len; _key++) {
             lot[_key] = arguments[_key];
         }
-        return Object.assign.apply(Object, [{}].concat(lot));
+        var out = lot.shift();
+        for (var i = 0, j = toCount(lot); i < j; ++i) {
+            for (var k in lot[i]) {
+                // Assign value
+                if (!isSet(out[k])) {
+                    out[k] = lot[i][k];
+                    continue;
+                } // Merge array unique
+                if (isArray(out[k]) && isArray(lot[i][k])) {
+                    for (var ii = 0, jj = toCount(lot[i][k]); ii < jj; ++ii) {
+                        if (!hasValue(lot[i][k][ii], out[k])) {
+                            out[k].push(lot[i][k][ii]);
+                        }
+                    } // Merge object recursive
+                } else if (isObject(out[k]) && isObject(lot[i][k])) {
+                    fromStates(out[k], lot[i][k]); // Replace value
+                } else {
+                    out[k] = lot[i][k];
+                }
+            }
+        }
+        return out;
     };
     var fromValue = function fromValue(x) {
         if (isArray(x)) {
@@ -89,10 +119,8 @@
         }
         return "" + x;
     };
-    var toCount = function toCount(x) {
-        return x.length;
-    };
     var W = window;
+    var theLocation = W.location;
     var isPattern = function isPattern(pattern) {
         return isInstance(pattern, RegExp);
     };
@@ -111,14 +139,58 @@
         };
     var that = {};
 
-    function toAttributes$1(attributes) {
+    function toAttributes(attributes) {
+        if (!attributes) {
+            return "";
+        } // Sort object by key(s)
+        attributes = toObjectKeys(attributes).sort().reduce(function(r, k) {
+            return r[k] = attributes[k], r;
+        }, {});
         var attribute,
+            v,
             out = "";
         for (attribute in attributes) {
-            out += ' ' + attribute + '="' + fromHTML(fromValue(attributes[attribute])) + '"';
+            v = attributes[attribute];
+            if (false === v || null === v) {
+                continue;
+            }
+            out += ' ' + attribute;
+            if (true !== v) {
+                out += '="' + fromHTML(fromValue(v)) + '"';
+            }
         }
         return out;
     }
+
+    function toTidy$1(tidy) {
+        if (false !== tidy) {
+            if (isString(tidy)) {
+                tidy = [tidy, tidy];
+            } else if (!isArray(tidy)) {
+                tidy = ["", ""];
+            }
+            if (!isSet(tidy[1])) {
+                tidy[1] = tidy[0];
+            }
+        }
+        return tidy; // Return `[…]` or `false`
+    }
+    that.insert = function(name, content, attributes, tidy) {
+        if (content === void 0) {
+            content = "";
+        }
+        if (attributes === void 0) {
+            attributes = {};
+        }
+        if (tidy === void 0) {
+            tidy = false;
+        }
+        var t = this;
+        if (false !== (tidy = toTidy$1(tidy))) {
+            t.trim(tidy[0], "");
+        }
+        return t.insert('<' + name + toAttributes(attributes) + (false !== content ? '>' + content + '</' + name + '>' : ' />') + (false !== tidy ? tidy[1] : ""), -1, true);
+    };
     that.toggle = function(name, content, attributes, tidy) {
         if (content === void 0) {
             content = "";
@@ -153,17 +225,35 @@
         if (!value && content) {
             t.insert(content);
         }
-        if (false !== tidy) {
-            if (true === tidy) {
-                tidy = ["", ""];
-            }
-            if (isString(tidy)) {
-                tidy = [tidy, tidy];
-            }
-            t.trim(tidy[0], tidy[1] || tidy[0]);
+        if (false !== (tidy = toTidy$1(tidy))) {
+            t.trim(tidy[0], tidy[1]);
         }
-        return t.wrap('<' + name + toAttributes$1(attributes) + '>', '</' + name + '>');
+        return t.wrap('<' + name + toAttributes(attributes) + '>', '</' + name + '>');
     };
+    that.wrap = function(name, content, attributes, tidy) {
+        if (content === void 0) {
+            content = "";
+        }
+        if (attributes === void 0) {
+            attributes = {};
+        }
+        if (tidy === void 0) {
+            tidy = false;
+        }
+        var t = this,
+            _t$$2 = t.$();
+        _t$$2.after;
+        _t$$2.before;
+        var value = _t$$2.value;
+        if (!value && content) {
+            t.insert(content);
+        }
+        if (false !== (tidy = toTidy$1(tidy))) {
+            t.trim(tidy[0], tidy[1]);
+        }
+        return t.wrap('<' + name + toAttributes(attributes) + '>', '</' + name + '>');
+    };
+    const protocol = theLocation.protocol;
     const defaults = {
         source: {
             type: 'HTML'
@@ -251,18 +341,6 @@
         tagStart = name => '<(' + name + ')(\\s(?:\'(?:\\\\.|[^\'])*\'|"(?:\\\\.|[^"])*"|[^/>\'"])*)?>',
         tagEnd = name => '</(' + name + ')>';
 
-    function toAttributes(attributes) {
-        if (!attributes) {
-            return "";
-        }
-        let attribute,
-            out = "";
-        for (attribute in attributes) {
-            out += ' ' + attribute + '="' + fromHTML(fromValue(attributes[attribute])) + '"';
-        }
-        return out;
-    }
-
     function toTidy(tidy) {
         if (false !== tidy) {
             if (isString(tidy)) {
@@ -285,15 +363,13 @@
                 h = +(before[1] || 0),
                 attr = before[2] || "",
                 elements = that.state.sourceHTML.elements || {},
-                element = before[0] ? elements[before[0].slice(1, -1).split(/\s/)[0]] : ["", "", {},
-                    ["", ""]
-                ];
+                element = before[0] ? elements[before[0].slice(1, -1).split(/\s/)[0]] : ["", "", {}];
             if (!attr && element[2]) {
                 attr = toAttributes(element[2]);
             } // ``
             t.replace(patternBefore, "", -1);
             t.replace(patternAfter, "", 1);
-            let tidy = element[3];
+            let tidy = element[3] || elements.h1[3];
             if (false !== (tidy = toTidy(tidy))) {
                 t.trim(tidy[0], tidy[1]);
             }
@@ -438,9 +514,12 @@
             }
             if ('g' === key) {
                 if (isFunction(prompt)) {
-                    let src = prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : 'http://'),
-                        element = elements.img;
-                    if (src) {
+                    prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : protocol + '//').then(src => {
+                        if (!src) {
+                            that.focus();
+                            return;
+                        }
+                        let element = elements.img;
                         if (value) {
                             element[2].alt = value;
                             that.record(); // Record selection
@@ -462,7 +541,7 @@
                         } else {
                             that.insert('<' + element[0] + toAttributes(element[2]) + '>' + (false !== tidy ? tidy[1] : ""), -1, true);
                         }
-                    }
+                    });
                 }
                 return that.record(), false;
             }
@@ -477,21 +556,24 @@
             }
             if ('l' === key) {
                 if (isFunction(prompt)) {
-                    let href = prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : 'http://'),
-                        element = elements.a;
-                    if (value) {
-                        that.record(); // Record selection
-                    }
-                    if (href) {
+                    prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : protocol + '//').then(href => {
+                        if (!href) {
+                            that.focus();
+                            return;
+                        }
+                        let element = elements.a;
+                        if (value) {
+                            that.record(); // Record selection
+                        }
                         element[2].href = href;
                         let local = /[.\/?&#]/.test(href[0]) || /^(data|javascript|mailto):/.test(href) || -1 === href.indexOf('://'),
-                            attr = {};
+                            extras = {};
                         if (!local) {
-                            attr.rel = 'nofollow';
-                            attr.target = '_blank';
+                            extras.rel = 'nofollow';
+                            extras.target = '_blank';
                         }
-                        toggle.apply(that, [element[0], element[1], fromStates(attr, element[2]), element[3]]);
-                    }
+                        toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), element[3]]);
+                    });
                 }
                 return that.record(), false;
             }
