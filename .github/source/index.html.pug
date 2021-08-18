@@ -13,7 +13,7 @@ block script
     | let editor = new TE(document.querySelector('textarea'), '  '),
     |     {canKeyDown: canKeyDownSource, canKeyDownDent: canKeyDownDentSource, canKeyDownEnter: canKeyDownEnterSource, canKeyDownHistory: canKeyDownHistorySource, canKeyDownMove: canKeyDownMoveSource, canKeyUp: canKeyUpSource} = TE.Source,
     |     {canKeyDown: canKeyDownSourceXML, canMouseDown: canMouseDownSourceXML} = TE.SourceXML,
-    |     {canKeyDown: canKeyDownSourceHTML, canMouseDown: canMouseDownSourceHTML} = TE.SourceHTML;
+    |     {canKeyDown: canKeyDownSourceHTML} = TE.SourceHTML;
     |
     | editor.state = Object.assign({}, editor.state, TE.Source.state, TE.SourceXML.state, TE.SourceHTML.state);
     | editor.state.source = Object.assign({}, editor.state.source, TE.Source.state.source, TE.SourceXML.state.source, TE.SourceHTML.state.source);
@@ -24,8 +24,8 @@ block script
     |     canKeyDownSourceHTML(key, keys, editor) &&
     |     canKeyDownSourceXML(key, keys, editor) &&
     |     canKeyDownSource(key, keys, editor) &&
-    |     canKeyDownEnterSource(key, keys, editor) &&
     |     canKeyDownDentSource(key, keys, editor) &&
+    |     canKeyDownEnterSource(key, keys, editor) &&
     |     canKeyDownHistorySource(key, keys, editor) &&
     |     canKeyDownMoveSource(key, keys, editor) ||
     |     e.preventDefault();
@@ -40,9 +40,7 @@ block script
     | function onMouseDown(e) {
     |     let key = e.key,
     |         keys = {a: e.altKey, c: e.ctrlKey, s: e.shiftKey};
-    |     canMouseDownSourceHTML(key, keys, editor) &&
-    |     canMouseDownSourceXML(key, keys, editor) ||
-    |     e.preventDefault();
+    |     canMouseDownSourceXML(key, keys, editor) || e.preventDefault();
     | }
     |
     | function letSourceEditor() {
@@ -146,11 +144,11 @@ block content
     p(tabindex='0') Previous tabbable element.
     p: textarea(placeholder!='Code goes here&hellip;' spellcheck='false')
     p
-      button(onclick='canKeyDownSourceHTML(\'b\', {a: false, c: true, s: false}, editor)'): b B
+      button(onclick='canKeyDownSourceHTML(\'b\', {a: false, c: true, s: false}, editor)') Bold
       = ' '
-      button(onclick='canKeyDownSourceHTML(\'i\', {a: false, c: true, s: false}, editor)'): i I
+      button(onclick='canKeyDownSourceHTML(\'i\', {a: false, c: true, s: false}, editor)') Italic
       = ' '
-      button(onclick='canKeyDownSourceHTML(\'u\', {a: false, c: true, s: false}, editor)'): u U
+      button(onclick='canKeyDownSourceHTML(\'u\', {a: false, c: true, s: false}, editor)') Underline
       = ' '
       button(onclick='canKeyDownSourceHTML(\'h\', {a: false, c: true, s: false}, editor)') Blocks
       = ' '
@@ -218,13 +216,11 @@ block content
       |   } = TE.Source;
       |
       |   const {
-      |       canKeyDown: canKeyDownSourceXML,
-      |       canMouseDown: canMouseDownSourceXML
+      |       canKeyDown: canKeyDownSourceXML
       |   } = TE.SourceXML;
       |
       |   const {
-      |       canKeyDown: canKeyDownSourceHTML,
-      |       canMouseDown: canMouseDownSourceHTML
+      |       canKeyDown: canKeyDownSourceHTML
       |   } = TE.SourceHTML;
       |
       |   function fromStates(...lot) { #[a(href='https://github.com/taufik-nurrohman/from/blob/v0.0.8/index.mjs#L31-L57' target='_blank') &hellip;] }
@@ -258,14 +254,7 @@ block content
       |   editor.self.addEventListener('mousedown', e =&gt; {
       |       let key = e.key,
       |           keys = {a: e.altKey, c: e.ctrlKey, s: e.shiftKey};
-      |       if (
-      |           canMouseDownSourceHTML(key, keys, editor) &amp;&amp;
-      |           canMouseDownSourceXML(key, keys, editor)
-      |       ) {
-      |           // Do nothing!
-      |       } else {
-      |           e.preventDefault();
-      |       }
+      |       canMouseDownSourceXML(key, keys, editor) || e.preventDefault();
       |   });
       |
       |   editor.record(); // Record the first history data
@@ -296,8 +285,7 @@ block content
       | } = require('@taufik-nurrohman/text-editor.source-x-m-l');
       |
       | const {
-      |     canKeyDown: canKeyDownSourceHTML,
-      |     canMouseDown: canMouseDownSourceHTML,
+      |     canKeyDown: canKeyDownSourceHTML
       |     state: stateSourceHTML
       | } = require('@taufik-nurrohman/text-editor.source-h-t-m-l');
       |
@@ -338,14 +326,7 @@ block content
       | editor.self.addEventListener('mousedown', e =&gt; {
       |     let key = e.key,
       |         keys = {a: e.altKey, c: e.ctrlKey, s: e.shiftKey};
-      |     if (
-      |         canMouseDownSourceHTML(key, keys, editor) &amp;&amp;
-      |         canMouseDownSourceXML(key, keys, editor)
-      |     ) {
-      |         // Do nothing!
-      |     } else {
-      |         e.preventDefault();
-      |     }
+      |     canMouseDownSourceXML(key, keys, editor) || e.preventDefault();
       | });
       |
       | editor.record();
@@ -374,8 +355,7 @@ block content
       | } from '@taufik-nurrohman/text-editor.source-x-m-l';
       |
       | import {
-      |     canKeyDown as canKeyDownSourceHTML,
-      |     canMouseDown as canMouseDownSourceHTML,
+      |     canKeyDown as canKeyDownSourceHTML
       |     state as stateSourceHTML
       | } from '@taufik-nurrohman/text-editor.source-h-t-m-l';
       |
@@ -416,14 +396,7 @@ block content
       | editor.self.addEventListener('mousedown', e =&gt; {
       |     let key = e.key,
       |         keys = {a: e.altKey, c: e.ctrlKey, s: e.shiftKey};
-      |     if (
-      |         canMouseDownSourceHTML(key, keys, editor) &amp;&amp;
-      |         canMouseDownSourceXML(key, keys, editor)
-      |     ) {
-      |         // Do nothing!
-      |     } else {
-      |         e.preventDefault();
-      |     }
+      |     canMouseDownSourceXML(key, keys, editor) || e.preventDefault();
       | });
       |
       | editor.record();
@@ -433,7 +406,6 @@ block content
     h3 Strokes
     p Strokes can either return #[code false] or #[code true]. If it returns #[code false], it means that this extension has manipulated the existing value. If it returns #[code true], it means that current stroke works normally.
     h4 TE.SourceHTML.canKeyDown(key, {a, c, s}, that)
-    h4 TE.SourceHTML.canMouseDown(key, {a, c, s}, that)
   footer
     hr
     p

@@ -474,19 +474,6 @@
         return x.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
     }
 
-    function updateType(that) {
-        let {
-            before
-        } = that.$(),
-            type = 'HTML';
-        if (toPattern(tagStart('script'), "").test(before) && !toPattern(tagEnd('script'), "").test(before)) {
-            type = 'JS';
-        } else if (toPattern(tagStart('style'), "").test(before) && !toPattern(tagEnd('style'), "").test(before)) {
-            type = 'CSS';
-        }
-        that.state.source.type = type;
-    }
-
     function canKeyDown(key, {
         a,
         c,
@@ -496,7 +483,6 @@
             charIndent = state.sourceHTML.tab || state.source.tab || state.tab || '\t',
             elements = state.sourceHTML.elements || {},
             prompt = state.source.prompt;
-        updateType(that);
         if (c) {
             let {
                 after,
@@ -572,7 +558,12 @@
                             extras.rel = 'nofollow';
                             extras.target = '_blank';
                         }
-                        toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), element[3]]);
+                        let tidy = toTidy(element[3] || false);
+                        if (false === tidy && !value) {
+                            // Tidy link with a space if there is no selection
+                            tidy = [' ', ' '];
+                        }
+                        toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), tidy]);
                     });
                 }
                 return that.record(), false;
@@ -689,17 +680,7 @@
         }
         return true;
     }
-
-    function canMouseDown(key, {
-        a,
-        c,
-        s
-    }, that) {
-        W.setTimeout(() => updateType(that), 1);
-        return true;
-    }
     const state = defaults;
     exports.canKeyDown = canKeyDown;
-    exports.canMouseDown = canMouseDown;
     exports.state = state;
 });

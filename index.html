@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width" name="viewport">
     <meta content="Provides a set of key strokes to generate responses like in a typical HTML source code editor." name="description">
-    <title>Text Editor Source HTML 1.0.1</title>
+    <title>Text Editor Source HTML 1.0.2</title>
     <style>
       * {
         box-sizing: border-box;
@@ -81,7 +81,7 @@
   </head>
   <body>
     <header>
-      <h1>Text Editor Source HTML 1.0.1</h1>
+      <h1>Text Editor Source HTML 1.0.2</h1>
       <p>HTML source code editor extension for <a href="../text-editor/index.html">text editor</a>.</p>
       <hr>
       <p>Provides a set of key strokes to generate responses like in a typical <abbr title="Hyper Text Markup Language">HTML</abbr> source code editor.</p>
@@ -89,7 +89,7 @@
     <main>
       <p tabindex="0">Previous tabbable element.</p>
       <p><textarea placeholder="Code goes here&hellip;" spellcheck="false"></textarea></p>
-      <p><button onclick="canKeyDownSourceHTML('b', {a: false, c: true, s: false}, editor)"><b>B</b></button> <button onclick="canKeyDownSourceHTML('i', {a: false, c: true, s: false}, editor)"><i>I</i></button> <button onclick="canKeyDownSourceHTML('u', {a: false, c: true, s: false}, editor)"><u>U</u></button> <button onclick="canKeyDownSourceHTML('h', {a: false, c: true, s: false}, editor)">Blocks</button> <button onclick="canKeyDownSourceHTML('q', {a: false, c: true, s: false}, editor)">Quote</button> <button onclick="canKeyDownSourceHTML('k', {a: false, c: true, s: false}, editor)">Code</button> <button onclick="canKeyDownSourceHTML('l', {a: false, c: true, s: false}, editor)">Link</button> <button onclick="canKeyDownSourceHTML('g', {a: false, c: true, s: false}, editor)">Image</button> <button onclick="editor.undo();">Undo</button> <button onclick="editor.redo();">Redo</button></p>
+      <p><button onclick="canKeyDownSourceHTML('b', {a: false, c: true, s: false}, editor)">Bold</button> <button onclick="canKeyDownSourceHTML('i', {a: false, c: true, s: false}, editor)">Italic</button> <button onclick="canKeyDownSourceHTML('u', {a: false, c: true, s: false}, editor)">Underline</button> <button onclick="canKeyDownSourceHTML('h', {a: false, c: true, s: false}, editor)">Blocks</button> <button onclick="canKeyDownSourceHTML('q', {a: false, c: true, s: false}, editor)">Quote</button> <button onclick="canKeyDownSourceHTML('k', {a: false, c: true, s: false}, editor)">Code</button> <button onclick="canKeyDownSourceHTML('l', {a: false, c: true, s: false}, editor)">Link</button> <button onclick="canKeyDownSourceHTML('g', {a: false, c: true, s: false}, editor)">Image</button> <button onclick="editor.undo();">Undo</button> <button onclick="editor.redo();">Redo</button></p>
       <p><label><input checked onchange="this.checked ? setSourceEditor() : letSourceEditor();" type="checkbox"> <span>Enable HTML Source Editor</span></label></p>
       <h2>Features</h2>
       <ul>
@@ -139,13 +139,11 @@
   } = TE.Source;
 
   const {
-      canKeyDown: canKeyDownSourceXML,
-      canMouseDown: canMouseDownSourceXML
+      canKeyDown: canKeyDownSourceXML
   } = TE.SourceXML;
 
   const {
-      canKeyDown: canKeyDownSourceHTML,
-      canMouseDown: canMouseDownSourceHTML
+      canKeyDown: canKeyDownSourceHTML
   } = TE.SourceHTML;
 
   function fromStates(...lot) { <a href="https://github.com/taufik-nurrohman/from/blob/v0.0.8/index.mjs#L31-L57" target="_blank">&hellip;</a> }
@@ -179,14 +177,7 @@
   editor.self.addEventListener('mousedown', e =&gt; {
       let key = e.key,
           keys = {a: e.altKey, c: e.ctrlKey, s: e.shiftKey};
-      if (
-          canMouseDownSourceHTML(key, keys, editor) &amp;&amp;
-          canMouseDownSourceXML(key, keys, editor)
-      ) {
-          // Do nothing!
-      } else {
-          e.preventDefault();
-      }
+      canMouseDownSourceXML(key, keys, editor) || e.preventDefault();
   });
 
   editor.record(); // Record the first history data
@@ -216,8 +207,7 @@ const {
 } = require('@taufik-nurrohman/text-editor.source-x-m-l');
 
 const {
-    canKeyDown: canKeyDownSourceHTML,
-    canMouseDown: canMouseDownSourceHTML,
+    canKeyDown: canKeyDownSourceHTML
     state: stateSourceHTML
 } = require('@taufik-nurrohman/text-editor.source-h-t-m-l');
 
@@ -258,14 +248,7 @@ editor.self.addEventListener('keyup', e =&gt; {
 editor.self.addEventListener('mousedown', e =&gt; {
     let key = e.key,
         keys = {a: e.altKey, c: e.ctrlKey, s: e.shiftKey};
-    if (
-        canMouseDownSourceHTML(key, keys, editor) &amp;&amp;
-        canMouseDownSourceXML(key, keys, editor)
-    ) {
-        // Do nothing!
-    } else {
-        e.preventDefault();
-    }
+    canMouseDownSourceXML(key, keys, editor) || e.preventDefault();
 });
 
 editor.record();</code></pre>
@@ -293,8 +276,7 @@ import {
 } from '@taufik-nurrohman/text-editor.source-x-m-l';
 
 import {
-    canKeyDown as canKeyDownSourceHTML,
-    canMouseDown as canMouseDownSourceHTML,
+    canKeyDown as canKeyDownSourceHTML
     state as stateSourceHTML
 } from '@taufik-nurrohman/text-editor.source-h-t-m-l';
 
@@ -335,14 +317,7 @@ editor.self.addEventListener('keyup', e =&gt; {
 editor.self.addEventListener('mousedown', e =&gt; {
     let key = e.key,
         keys = {a: e.altKey, c: e.ctrlKey, s: e.shiftKey};
-    if (
-        canMouseDownSourceHTML(key, keys, editor) &amp;&amp;
-        canMouseDownSourceXML(key, keys, editor)
-    ) {
-        // Do nothing!
-    } else {
-        e.preventDefault();
-    }
+    canMouseDownSourceXML(key, keys, editor) || e.preventDefault();
 });
 
 editor.record();</code></pre>
@@ -352,7 +327,6 @@ editor.record();</code></pre>
       <h3>Strokes</h3>
       <p>Strokes can either return <code>false</code> or <code>true</code>. If it returns <code>false</code>, it means that this extension has manipulated the existing value. If it returns <code>true</code>, it means that current stroke works normally.</p>
       <h4>TE.SourceHTML.canKeyDown(key, {a, c, s}, that)</h4>
-      <h4>TE.SourceHTML.canMouseDown(key, {a, c, s}, that)</h4>
     </main>
     <footer>
       <hr>
@@ -382,8 +356,7 @@ editor.record();</code></pre>
               canMouseDown: canMouseDownSourceXML
           } = TE.SourceXML,
           {
-              canKeyDown: canKeyDownSourceHTML,
-              canMouseDown: canMouseDownSourceHTML
+              canKeyDown: canKeyDownSourceHTML
           } = TE.SourceHTML;
 
       editor.state = Object.assign({}, editor.state, TE.Source.state, TE.SourceXML.state, TE.SourceHTML.state);
@@ -399,8 +372,8 @@ editor.record();</code></pre>
           canKeyDownSourceHTML(key, keys, editor) &&
               canKeyDownSourceXML(key, keys, editor) &&
               canKeyDownSource(key, keys, editor) &&
-              canKeyDownEnterSource(key, keys, editor) &&
               canKeyDownDentSource(key, keys, editor) &&
+              canKeyDownEnterSource(key, keys, editor) &&
               canKeyDownHistorySource(key, keys, editor) &&
               canKeyDownMoveSource(key, keys, editor) ||
               e.preventDefault();
@@ -423,9 +396,7 @@ editor.record();</code></pre>
                   c: e.ctrlKey,
                   s: e.shiftKey
               };
-          canMouseDownSourceHTML(key, keys, editor) &&
-              canMouseDownSourceXML(key, keys, editor) ||
-              e.preventDefault();
+          canMouseDownSourceXML(key, keys, editor) || e.preventDefault();
       }
 
       function letSourceEditor() {
