@@ -209,14 +209,16 @@ function decode(x) {
     return x.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 }
 
-export function canKeyDown(key, {a, c, s}, that) {
+export function canKeyDown(map, that) {
     let state = that.state,
         charAfter,
         charBefore,
         charIndent = state.sourceHTML.tab || state.source.tab || state.tab || '\t',
         elements = state.sourceHTML.elements || {},
-        prompt = state.source.prompt;
-    if (c) {
+        prompt = state.source.prompt,
+        {key, queue} = map,
+        keyValue = map + "";
+    if (queue.Control) {
         let {after, before, end, start, value} = that.$(),
             lineAfter = after.split('\n').shift(),
             lineBefore = before.split('\n').pop(),
@@ -225,7 +227,44 @@ export function canKeyDown(key, {a, c, s}, that) {
         if ('b' === key) {
             return toggle.apply(that, elements.b), false;
         }
-        if ('g' === key) {
+        if ('e' === key) {
+            return toggleCodes(that), that.record(), false;
+        }
+        if ('h' === key) {
+            return toggleBlocks(that), that.record(), false;
+        }
+        if ('i' === key) {
+            return toggle.apply(that, elements.i), false;
+        }
+        if ('k' === key) {
+            if (isFunction(prompt)) {
+                prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : protocol + '//').then(href => {
+                    if (!href) {
+                        that.focus();
+                        return;
+                    }
+                    let element = elements.a;
+                    if (value) {
+                        that.record(); // Record selection
+                    }
+                    element[2].href = href;
+                    let local = /[.\/?&#]/.test(href[0]) || /^(data|javascript|mailto):/.test(href) || -1 === href.indexOf('://'),
+                        extras = {};
+                    if (!local) {
+                        extras.rel = 'nofollow';
+                        extras.target = '_blank';
+                    }
+                    let tidy = toTidy(element[3] || false);
+                    if (false === tidy && !value) {
+                        // Tidy link with a space if there is no selection
+                        tidy = [' ', ' '];
+                    }
+                    toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), tidy]);
+                });
+            }
+            return that.record(), false;
+        }
+        if ('o' === key) {
             if (isFunction(prompt)) {
                 prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : protocol + '//').then(src => {
                     if (!src) {
@@ -258,43 +297,6 @@ export function canKeyDown(key, {a, c, s}, that) {
             }
             return that.record(), false;
         }
-        if ('h' === key) {
-            return toggleBlocks(that), that.record(), false;
-        }
-        if ('i' === key) {
-            return toggle.apply(that, elements.i), false;
-        }
-        if ('k' === key) {
-            return toggleCodes(that), that.record(), false;
-        }
-        if ('l' === key) {
-            if (isFunction(prompt)) {
-                prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : protocol + '//').then(href => {
-                    if (!href) {
-                        that.focus();
-                        return;
-                    }
-                    let element = elements.a;
-                    if (value) {
-                        that.record(); // Record selection
-                    }
-                    element[2].href = href;
-                    let local = /[.\/?&#]/.test(href[0]) || /^(data|javascript|mailto):/.test(href) || -1 === href.indexOf('://'),
-                        extras = {};
-                    if (!local) {
-                        extras.rel = 'nofollow';
-                        extras.target = '_blank';
-                    }
-                    let tidy = toTidy(element[3] || false);
-                    if (false === tidy && !value) {
-                        // Tidy link with a space if there is no selection
-                        tidy = [' ', ' '];
-                    }
-                    toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), tidy]);
-                });
-            }
-            return that.record(), false;
-        }
         if ('q' === key) {
             return toggleQuotes(that), that.record(), false;
         }
@@ -311,7 +313,7 @@ export function canKeyDown(key, {a, c, s}, that) {
         }
     }
     // Do nothing
-    if (a || c) {
+    if (queue.Alt || queue.Control) {
         return true;
     }
     if ('>' === key) {
