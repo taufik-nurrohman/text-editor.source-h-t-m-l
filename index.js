@@ -373,6 +373,7 @@
                 attr = toAttributes(element[2]);
             } // ``
             t.replace(patternBefore, "", -1);
+            t.replace(/\n+/g, ' ');
             t.replace(patternAfter, "", 1);
             let tidy = element[3] || elements.h1[3];
             if (false !== (tidy = toTidy(tidy))) {
@@ -478,12 +479,123 @@
     function decode(x) {
         return x.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
     }
+    const commands = {};
+    commands.blocks = function() {
+        let that = this;
+        return toggleBlocks(that), that.record(), false;
+    };
+    commands.bold = function() {
+        let that = this,
+            state = that.state,
+            elements = state.sourceHTML.elements || {};
+        return toggle.apply(this, elements.b), false;
+    };
+    commands.code = function() {
+        let that = this;
+        return toggleCodes(that), that.record(), false;
+    };
+    commands.image = function(label = 'URL:', placeholder) {
+        let that = this,
+            {
+                after,
+                before,
+                value
+            } = that.$(),
+            state = that.state,
+            elements = state.sourceHTML.elements || {},
+            charIndent = state.sourceHTML.tab || state.source.tab || state.tab || '\t',
+            lineBefore = before.split('\n').pop(),
+            lineMatch = lineBefore.match(/^(\s+)/),
+            lineMatchIndent = lineMatch && lineMatch[1] || "",
+            prompt = state.source.prompt;
+        if (isFunction(prompt)) {
+            prompt(label, value && /^https?:\/\/\S+$/.test(value) ? value : placeholder || protocol + '//').then(src => {
+                if (!src) {
+                    that.focus();
+                    return;
+                }
+                let element = elements.img;
+                if (value) {
+                    element[2].alt = value;
+                    that.record(); // Record selection
+                }
+                let tidy = element[3] || false;
+                if (false !== (tidy = toTidy(tidy))) {
+                    that.trim(tidy[0], "");
+                }
+                element[2].src = src;
+                if ((!after || '\n' === after[0]) && (!before || '\n' === before.slice(-1))) {
+                    tidy = elements.figure[3] || false;
+                    if (false !== (tidy = toTidy(tidy))) {
+                        that.trim(tidy[0], tidy[1]);
+                    }
+                    that.insert("");
+                    that.wrap(lineMatchIndent + '<' + elements.figure[0] + toAttributes(elements.figure[2]) + '>\n' + lineMatchIndent + charIndent, lineMatchIndent + '\n</' + elements.figure[0] + '>');
+                    that.insert('<' + element[0] + toAttributes(element[2]) + '>\n' + lineMatchIndent + charIndent, -1);
+                    that.wrap('<' + elements.figcaption[0] + toAttributes(elements.figcaption[2]) + '>', '</' + elements.figcaption[0] + '>').insert(elements.figcaption[1]);
+                } else {
+                    that.insert('<' + element[0] + toAttributes(element[2]) + '>' + (false !== tidy ? tidy[1] : ""), -1, true);
+                }
+            });
+        }
+        return that.record(), false;
+    };
+    commands.italic = function() {
+        let that = this,
+            state = that.state,
+            elements = state.sourceHTML.elements || {};
+        return toggle.apply(this, elements.i), false;
+    };
+    commands.link = function(label = 'URL:', placeholder) {
+        let that = this,
+            {
+                value
+            } = that.$(),
+            state = that.state,
+            elements = state.sourceHTML.elements || {},
+            prompt = state.source.prompt;
+        if (isFunction(prompt)) {
+            prompt(label, value && /^https?:\/\/\S+$/.test(value) ? value : placeholder || protocol + '//').then(href => {
+                if (!href) {
+                    that.focus();
+                    return;
+                }
+                let element = elements.a;
+                if (value) {
+                    that.record(); // Record selection
+                }
+                element[2].href = href;
+                let local = /[.\/?&#]/.test(href[0]) || /^(data|javascript|mailto):/.test(href) || -1 === href.indexOf('://'),
+                    extras = {};
+                if (!local) {
+                    extras.rel = 'nofollow';
+                    extras.target = '_blank';
+                }
+                let tidy = toTidy(element[3] || false);
+                if (false === tidy && !value) {
+                    // Tidy link with a space if there is no selection
+                    tidy = [' ', ' '];
+                }
+                toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), tidy]);
+            });
+        }
+        return that.record(), false;
+    };
+    commands.quote = function() {
+        let that = this;
+        return toggleQuotes(that), that.record(), false;
+    };
+    commands.underline = function() {
+        let that = this,
+            state = that.state,
+            elements = state.sourceHTML.elements || {};
+        return toggle.apply(this, elements.u), false;
+    };
 
     function canKeyDown(map, that) {
         let state = that.state,
             charIndent = state.sourceHTML.tab || state.source.tab || state.tab || '\t',
             elements = state.sourceHTML.elements || {},
-            prompt = state.source.prompt,
             {
                 key,
                 queue
@@ -500,90 +612,11 @@
                 lineBefore = before.split('\n').pop(),
                 lineMatch = lineBefore.match(/^(\s+)/),
                 lineMatchIndent = lineMatch && lineMatch[1] || "";
-            if ('b' === key) {
-                return toggle.apply(that, elements.b), false;
-            }
-            if ('e' === key) {
-                return toggleCodes(that), that.record(), false;
-            }
-            if ('h' === key) {
-                return toggleBlocks(that), that.record(), false;
-            }
-            if ('i' === key) {
-                return toggle.apply(that, elements.i), false;
-            }
-            if ('k' === key) {
-                if (isFunction(prompt)) {
-                    prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : protocol + '//').then(href => {
-                        if (!href) {
-                            that.focus();
-                            return;
-                        }
-                        let element = elements.a;
-                        if (value) {
-                            that.record(); // Record selection
-                        }
-                        element[2].href = href;
-                        let local = /[.\/?&#]/.test(href[0]) || /^(data|javascript|mailto):/.test(href) || -1 === href.indexOf('://'),
-                            extras = {};
-                        if (!local) {
-                            extras.rel = 'nofollow';
-                            extras.target = '_blank';
-                        }
-                        let tidy = toTidy(element[3] || false);
-                        if (false === tidy && !value) {
-                            // Tidy link with a space if there is no selection
-                            tidy = [' ', ' '];
-                        }
-                        toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), tidy]);
-                    });
-                }
-                return that.record(), false;
-            }
-            if ('o' === key) {
-                if (isFunction(prompt)) {
-                    prompt('URL:', value && /^https?:\/\/\S+$/.test(value) ? value : protocol + '//').then(src => {
-                        if (!src) {
-                            that.focus();
-                            return;
-                        }
-                        let element = elements.img;
-                        if (value) {
-                            element[2].alt = value;
-                            that.record(); // Record selection
-                        }
-                        let tidy = element[3] || false;
-                        if (false !== (tidy = toTidy(tidy))) {
-                            that.trim(tidy[0], "");
-                        }
-                        element[2].src = src;
-                        if ((!after || '\n' === after[0]) && (!before || '\n' === before.slice(-1))) {
-                            tidy = elements.figure[3] || false;
-                            if (false !== (tidy = toTidy(tidy))) {
-                                that.trim(tidy[0], tidy[1]);
-                            }
-                            that.insert("");
-                            that.wrap(lineMatchIndent + '<' + elements.figure[0] + toAttributes(elements.figure[2]) + '>\n' + lineMatchIndent + charIndent, lineMatchIndent + '\n</' + elements.figure[0] + '>');
-                            that.insert('<' + element[0] + toAttributes(element[2]) + '>\n' + lineMatchIndent + charIndent, -1);
-                            that.wrap('<' + elements.figcaption[0] + toAttributes(elements.figcaption[2]) + '>', '</' + elements.figcaption[0] + '>').insert(elements.figcaption[1]);
-                        } else {
-                            that.insert('<' + element[0] + toAttributes(element[2]) + '>' + (false !== tidy ? tidy[1] : ""), -1, true);
-                        }
-                    });
-                }
-                return that.record(), false;
-            }
-            if ('q' === key) {
-                return toggleQuotes(that), that.record(), false;
-            }
-            if ('u' === key) {
-                return toggle.apply(that, elements.u), false;
-            }
             if ('Enter' === key) {
                 let m = lineAfter.match(toPattern(tagEnd(tagName) + '\\s*$', "")),
                     element = elements[m && m[1] || 'p'] || elements.p;
                 element[3] = ['\n' + lineMatchIndent, '\n' + lineMatchIndent];
-                that.select(s ? start - toCount(lineBefore) : end + toCount(lineAfter));
+                that.select(queue.Shift ? start - toCount(lineBefore) : end + toCount(lineAfter));
                 toggle.apply(that, element);
                 return that.record(), false;
             }
@@ -687,5 +720,6 @@
     }
     const state = defaults;
     exports.canKeyDown = canKeyDown;
+    exports.commands = commands;
     exports.state = state;
 });

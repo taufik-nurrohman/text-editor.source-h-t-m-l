@@ -15,7 +15,18 @@ block script
     |     map = new K(editor),
     |     {canKeyDown: canKeyDownSource, canKeyDownDent: canKeyDownDentSource, canKeyDownEnter: canKeyDownEnterSource, canKeyDownHistory: canKeyDownHistorySource, canKeyDownMove: canKeyDownMoveSource, canKeyUp: canKeyUpSource} = TE.Source,
     |     {canKeyDown: canKeyDownSourceXML, canMouseDown: canMouseDownSourceXML} = TE.SourceXML,
-    |     {canKeyDown: canKeyDownSourceHTML} = TE.SourceHTML;
+    |     {canKeyDown: canKeyDownSourceHTML, commands: commandsSourceHTML} = TE.SourceHTML;
+    |
+    | Object.assign(map.commands, commandsSourceHTML);
+    |
+    | map.keys['Control-b'] = 'bold';
+    | map.keys['Control-e'] = 'code';
+    | map.keys['Control-h'] = 'blocks';
+    | map.keys['Control-i'] = 'italic';
+    | map.keys['Control-k'] = 'link';
+    | map.keys['Control-o'] = 'image';
+    | map.keys['Control-q'] = 'quote';
+    | map.keys['Control-u'] = 'underline';
     |
     | editor.state = Object.assign({}, editor.state, TE.Source.state, TE.SourceXML.state, TE.SourceHTML.state);
     | editor.state.source = Object.assign({}, editor.state.source, TE.Source.state.source, TE.SourceXML.state.source, TE.SourceHTML.state.source, {
@@ -173,21 +184,21 @@ block content
     p(tabindex='0') Previous tabbable element.
     p: textarea(placeholder!='Code goes here&hellip;' spellcheck='false')
     p
-      button(onclick='map.commands.b.call(editor);') Bold
+      button(onclick='map.commands.bold.call(editor);') Bold
       = ' '
-      button(onclick='map.commands.i.call(editor);') Italic
+      button(onclick='map.commands.italic.call(editor);') Italic
       = ' '
-      button(onclick='map.commands.u.call(editor);') Underline
+      button(onclick='map.commands.underline.call(editor);') Underline
       = ' '
-      button(onclick='map.commands.h.call(editor);') Blocks
+      button(onclick='map.commands.blocks.call(editor);') Blocks
       = ' '
-      button(onclick='map.commands.q.call(editor);') Quote
+      button(onclick='map.commands.quote.call(editor);') Quote
       = ' '
-      button(onclick='map.commands.e.call(editor);') Code
+      button(onclick='map.commands.code.call(editor);') Code
       = ' '
-      button(onclick='map.commands.k.call(editor);') Link
+      button(onclick='map.commands.link.call(editor);') Link
       = ' '
-      button(onclick='map.commands.o.call(editor);') Image
+      button(onclick='map.commands.image.call(editor);') Image
       = ' '
       button(onclick='editor.undo();') Undo
       = ' '
@@ -237,6 +248,17 @@ block content
       |
       |   const editor = new TE(document.querySelector('textarea'));
       |   const map = new K(editor);
+      |
+      |   Object.assign(map.commands, TE.SourceHTML.commands);
+      |
+      |   map.keys['Control-b'] = 'bold';
+      |   map.keys['Control-e'] = 'code';
+      |   map.keys['Control-h'] = 'blocks';
+      |   map.keys['Control-i'] = 'italic';
+      |   map.keys['Control-k'] = 'link';
+      |   map.keys['Control-o'] = 'image';
+      |   map.keys['Control-q'] = 'quote';
+      |   map.keys['Control-u'] = 'underline';
       |
       |   const {
       |       canKeyDown: canKeyDownSource,
@@ -332,7 +354,8 @@ block content
       | } = require('@taufik-nurrohman/text-editor.source-x-m-l');
       |
       | const {
-      |     canKeyDown: canKeyDownSourceHTML
+      |     canKeyDown: canKeyDownSourceHTML,
+      |     commands: commandsSourceHTML,
       |     state: stateSourceHTML
       | } = require('@taufik-nurrohman/text-editor.source-h-t-m-l');
       |
@@ -344,6 +367,17 @@ block content
       |
       | const editor = new TE(document.querySelector('textarea'));
       | const map = new K(editor);
+      |
+      | Object.assign(map.commands, commandsSourceHTML);
+      |
+      | map.keys['Control-b'] = 'bold';
+      | map.keys['Control-e'] = 'code';
+      | map.keys['Control-h'] = 'blocks';
+      | map.keys['Control-i'] = 'italic';
+      | map.keys['Control-k'] = 'link';
+      | map.keys['Control-o'] = 'image';
+      | map.keys['Control-q'] = 'quote';
+      | map.keys['Control-u'] = 'underline';
       |
       | editor.state = fromStates({}, editor.state, stateSource, stateSourceXML, stateSourceHTML, {
       |     commands: map.commands,
@@ -367,13 +401,13 @@ block content
       |     // Else, run the defaults!
       |     } else {
       |         if (
-      |             canKeyDownSourceHTML(key, keys, editor) &amp;&amp;
-      |             canKeyDownSourceXML(key, keys, editor) &amp;&amp;
-      |             canKeyDownSource(key, keys, editor) &amp;&amp;
-      |             canKeyDownEnterSource(key, keys, editor) &amp;&amp;
-      |             canKeyDownHistorySource(key, keys, editor) &amp;&amp;
-      |             canKeyDownMoveSource(key, keys, editor) &amp;&amp;
-      |             canKeyDownTabSource(key, keys, editor)
+      |             canKeyDownSourceHTML(map, editor) &amp;&amp;
+      |             canKeyDownSourceXML(map, editor) &amp;&amp;
+      |             canKeyDownSource(map, editor) &amp;&amp;
+      |             canKeyDownEnterSource(map, editor) &amp;&amp;
+      |             canKeyDownHistorySource(map, editor) &amp;&amp;
+      |             canKeyDownMoveSource(map, editor) &amp;&amp;
+      |             canKeyDownTabSource(map, editor)
       |         ) {
       |             // Normal key strokes. Add more key strokes extension here!
       |         } else {
@@ -418,7 +452,8 @@ block content
       | } from '@taufik-nurrohman/text-editor.source-x-m-l';
       |
       | import {
-      |     canKeyDown as canKeyDownSourceHTML
+      |     canKeyDown as canKeyDownSourceHTML,
+      |     commands as commandsSourceHTML,
       |     state as stateSourceHTML
       | } from '@taufik-nurrohman/text-editor.source-h-t-m-l';
       |
@@ -430,6 +465,17 @@ block content
       |
       | const editor = new TE(document.querySelector('textarea'));
       | const map = new K(editor);
+      |
+      | Object.assign(map.commands, commandsSourceHTML);
+      |
+      | map.keys['Control-b'] = 'bold';
+      | map.keys['Control-e'] = 'code';
+      | map.keys['Control-h'] = 'blocks';
+      | map.keys['Control-i'] = 'italic';
+      | map.keys['Control-k'] = 'link';
+      | map.keys['Control-o'] = 'image';
+      | map.keys['Control-q'] = 'quote';
+      | map.keys['Control-u'] = 'underline';
       |
       | editor.state = fromStates({}, editor.state, stateSource, stateSourceXML, stateSourceHTML, {
       |     commands: map.commands,
@@ -453,13 +499,13 @@ block content
       |     // Else, run the defaults!
       |     } else {
       |         if (
-      |             canKeyDownSourceHTML(key, keys, editor) &amp;&amp;
-      |             canKeyDownSourceXML(key, keys, editor) &amp;&amp;
-      |             canKeyDownSource(key, keys, editor) &amp;&amp;
-      |             canKeyDownEnterSource(key, keys, editor) &amp;&amp;
-      |             canKeyDownHistorySource(key, keys, editor) &amp;&amp;
-      |             canKeyDownMoveSource(key, keys, editor) &amp;&amp;
-      |             canKeyDownTabSource(key, keys, editor)
+      |             canKeyDownSourceHTML(map, editor) &amp;&amp;
+      |             canKeyDownSourceXML(map, editor) &amp;&amp;
+      |             canKeyDownSource(map, editor) &amp;&amp;
+      |             canKeyDownEnterSource(map, editor) &amp;&amp;
+      |             canKeyDownHistorySource(map, editor) &amp;&amp;
+      |             canKeyDownMoveSource(map, editor) &amp;&amp;
+      |             canKeyDownTabSource(map, editor)
       |         ) {
       |             // Normal key strokes. Add more key strokes extension here!
       |         } else {
@@ -479,6 +525,8 @@ block content
       |
       | editor.record(); // Record the first history data!
     h3 Properties
+    h4 TE.SourceHTML.commands
+    p Return the default commands to be merged with #[code editor.state.source.commands].
     h4 TE.SourceHTML.state
     p Return the default state to be merged with #[code editor.state].
     h3 Strokes

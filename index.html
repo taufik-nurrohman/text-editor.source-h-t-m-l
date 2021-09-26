@@ -89,7 +89,7 @@
     <main>
       <p tabindex="0">Previous tabbable element.</p>
       <p><textarea placeholder="Code goes here&hellip;" spellcheck="false"></textarea></p>
-      <p><button onclick="map.commands.b.call(editor);">Bold</button> <button onclick="map.commands.i.call(editor);">Italic</button> <button onclick="map.commands.u.call(editor);">Underline</button> <button onclick="map.commands.h.call(editor);">Blocks</button> <button onclick="map.commands.q.call(editor);">Quote</button> <button onclick="map.commands.e.call(editor);">Code</button> <button onclick="map.commands.k.call(editor);">Link</button> <button onclick="map.commands.o.call(editor);">Image</button> <button onclick="editor.undo();">Undo</button> <button onclick="editor.redo();">Redo</button> <code id="log"></code></p>
+      <p><button onclick="map.commands.bold.call(editor);">Bold</button> <button onclick="map.commands.italic.call(editor);">Italic</button> <button onclick="map.commands.underline.call(editor);">Underline</button> <button onclick="map.commands.blocks.call(editor);">Blocks</button> <button onclick="map.commands.quote.call(editor);">Quote</button> <button onclick="map.commands.code.call(editor);">Code</button> <button onclick="map.commands.link.call(editor);">Link</button> <button onclick="map.commands.image.call(editor);">Image</button> <button onclick="editor.undo();">Undo</button> <button onclick="editor.redo();">Redo</button> <code id="log"></code></p>
       <p><label><input checked onchange="this.checked ? setEditor() : letEditor();" type="checkbox"> <span>Enable HTML Source Editor</span></label></p>
       <h2>Features</h2>
       <ul>
@@ -129,6 +129,17 @@
 
   const editor = new TE(document.querySelector('textarea'));
   const map = new K(editor);
+
+  Object.assign(map.commands, TE.SourceHTML.commands);
+
+  map.keys['Control-b'] = 'bold';
+  map.keys['Control-e'] = 'code';
+  map.keys['Control-h'] = 'blocks';
+  map.keys['Control-i'] = 'italic';
+  map.keys['Control-k'] = 'link';
+  map.keys['Control-o'] = 'image';
+  map.keys['Control-q'] = 'quote';
+  map.keys['Control-u'] = 'underline';
 
   const {
       canKeyDown: canKeyDownSource,
@@ -223,7 +234,8 @@ const {
 } = require('@taufik-nurrohman/text-editor.source-x-m-l');
 
 const {
-    canKeyDown: canKeyDownSourceHTML
+    canKeyDown: canKeyDownSourceHTML,
+    commands: commandsSourceHTML,
     state: stateSourceHTML
 } = require('@taufik-nurrohman/text-editor.source-h-t-m-l');
 
@@ -235,6 +247,17 @@ TE.prototype.wrapXML = thatSourceXML.wrap;
 
 const editor = new TE(document.querySelector('textarea'));
 const map = new K(editor);
+
+Object.assign(map.commands, commandsSourceHTML);
+
+map.keys['Control-b'] = 'bold';
+map.keys['Control-e'] = 'code';
+map.keys['Control-h'] = 'blocks';
+map.keys['Control-i'] = 'italic';
+map.keys['Control-k'] = 'link';
+map.keys['Control-o'] = 'image';
+map.keys['Control-q'] = 'quote';
+map.keys['Control-u'] = 'underline';
 
 editor.state = fromStates({}, editor.state, stateSource, stateSourceXML, stateSourceHTML, {
     commands: map.commands,
@@ -258,13 +281,13 @@ editor.self.addEventListener('keydown', e =&gt; {
     // Else, run the defaults!
     } else {
         if (
-            canKeyDownSourceHTML(key, keys, editor) &amp;&amp;
-            canKeyDownSourceXML(key, keys, editor) &amp;&amp;
-            canKeyDownSource(key, keys, editor) &amp;&amp;
-            canKeyDownEnterSource(key, keys, editor) &amp;&amp;
-            canKeyDownHistorySource(key, keys, editor) &amp;&amp;
-            canKeyDownMoveSource(key, keys, editor) &amp;&amp;
-            canKeyDownTabSource(key, keys, editor)
+            canKeyDownSourceHTML(map, editor) &amp;&amp;
+            canKeyDownSourceXML(map, editor) &amp;&amp;
+            canKeyDownSource(map, editor) &amp;&amp;
+            canKeyDownEnterSource(map, editor) &amp;&amp;
+            canKeyDownHistorySource(map, editor) &amp;&amp;
+            canKeyDownMoveSource(map, editor) &amp;&amp;
+            canKeyDownTabSource(map, editor)
         ) {
             // Normal key strokes. Add more key strokes extension here!
         } else {
@@ -308,7 +331,8 @@ import {
 } from '@taufik-nurrohman/text-editor.source-x-m-l';
 
 import {
-    canKeyDown as canKeyDownSourceHTML
+    canKeyDown as canKeyDownSourceHTML,
+    commands as commandsSourceHTML,
     state as stateSourceHTML
 } from '@taufik-nurrohman/text-editor.source-h-t-m-l';
 
@@ -320,6 +344,17 @@ TE.prototype.wrapXML = thatSourceXML.wrap;
 
 const editor = new TE(document.querySelector('textarea'));
 const map = new K(editor);
+
+Object.assign(map.commands, commandsSourceHTML);
+
+map.keys['Control-b'] = 'bold';
+map.keys['Control-e'] = 'code';
+map.keys['Control-h'] = 'blocks';
+map.keys['Control-i'] = 'italic';
+map.keys['Control-k'] = 'link';
+map.keys['Control-o'] = 'image';
+map.keys['Control-q'] = 'quote';
+map.keys['Control-u'] = 'underline';
 
 editor.state = fromStates({}, editor.state, stateSource, stateSourceXML, stateSourceHTML, {
     commands: map.commands,
@@ -343,13 +378,13 @@ editor.self.addEventListener('keydown', e =&gt; {
     // Else, run the defaults!
     } else {
         if (
-            canKeyDownSourceHTML(key, keys, editor) &amp;&amp;
-            canKeyDownSourceXML(key, keys, editor) &amp;&amp;
-            canKeyDownSource(key, keys, editor) &amp;&amp;
-            canKeyDownEnterSource(key, keys, editor) &amp;&amp;
-            canKeyDownHistorySource(key, keys, editor) &amp;&amp;
-            canKeyDownMoveSource(key, keys, editor) &amp;&amp;
-            canKeyDownTabSource(key, keys, editor)
+            canKeyDownSourceHTML(map, editor) &amp;&amp;
+            canKeyDownSourceXML(map, editor) &amp;&amp;
+            canKeyDownSource(map, editor) &amp;&amp;
+            canKeyDownEnterSource(map, editor) &amp;&amp;
+            canKeyDownHistorySource(map, editor) &amp;&amp;
+            canKeyDownMoveSource(map, editor) &amp;&amp;
+            canKeyDownTabSource(map, editor)
         ) {
             // Normal key strokes. Add more key strokes extension here!
         } else {
@@ -369,6 +404,8 @@ editor.self.addEventListener('mousedown', e =&gt; {
 
 editor.record(); // Record the first history data!</code></pre>
       <h3>Properties</h3>
+      <h4>TE.SourceHTML.commands</h4>
+      <p>Return the default commands to be merged with <code>editor.state.source.commands</code>.</p>
       <h4>TE.SourceHTML.state</h4>
       <p>Return the default state to be merged with <code>editor.state</code>.</p>
       <h3>Strokes</h3>
@@ -406,8 +443,20 @@ editor.record(); // Record the first history data!</code></pre>
               canMouseDown: canMouseDownSourceXML
           } = TE.SourceXML,
           {
-              canKeyDown: canKeyDownSourceHTML
+              canKeyDown: canKeyDownSourceHTML,
+              commands: commandsSourceHTML
           } = TE.SourceHTML;
+
+      Object.assign(map.commands, commandsSourceHTML);
+
+      map.keys['Control-b'] = 'bold';
+      map.keys['Control-e'] = 'code';
+      map.keys['Control-h'] = 'blocks';
+      map.keys['Control-i'] = 'italic';
+      map.keys['Control-k'] = 'link';
+      map.keys['Control-o'] = 'image';
+      map.keys['Control-q'] = 'quote';
+      map.keys['Control-u'] = 'underline';
 
       editor.state = Object.assign({}, editor.state, TE.Source.state, TE.SourceXML.state, TE.SourceHTML.state);
       editor.state.source = Object.assign({}, editor.state.source, TE.Source.state.source, TE.SourceXML.state.source, TE.SourceHTML.state.source, {
