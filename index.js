@@ -482,17 +482,17 @@
     const commands = {};
     commands.blocks = function() {
         let that = this;
-        return toggleBlocks(that), that.record(), false;
+        return that.record(), toggleBlocks(that), that.record(), false;
     };
     commands.bold = function() {
         let that = this,
             state = that.state,
             elements = state.sourceHTML.elements || {};
-        return toggle.apply(this, elements.b), false;
+        return that.record(), toggle.apply(this, elements.b), false;
     };
     commands.code = function() {
         let that = this;
-        return toggleCodes(that), that.record(), false;
+        return that.record(), toggleCodes(that), that.record(), false;
     };
     commands.image = function(label = 'URL:', placeholder) {
         let that = this,
@@ -544,7 +544,7 @@
         let that = this,
             state = that.state,
             elements = state.sourceHTML.elements || {};
-        return toggle.apply(this, elements.i), false;
+        return that.record(), toggle.apply(this, elements.i), false;
     };
     commands.link = function(label = 'URL:', placeholder) {
         let that = this,
@@ -583,13 +583,13 @@
     };
     commands.quote = function() {
         let that = this;
-        return toggleQuotes(that), that.record(), false;
+        return that.record(), toggleQuotes(that), that.record(), false;
     };
     commands.underline = function() {
         let that = this,
             state = that.state,
             elements = state.sourceHTML.elements || {};
-        return toggle.apply(this, elements.u), false;
+        return that.record(), toggle.apply(this, elements.u), false;
     };
 
     function canKeyDown(map, that) {
