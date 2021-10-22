@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width" name="viewport">
     <meta content="Provides a set of key strokes to generate responses like in a typical HTML source code editor." name="description">
-    <title>Text Editor Source HTML 1.1.1</title>
+    <title>Text Editor Source HTML 1.1.2</title>
     <style>
       * {
         box-sizing: border-box;
@@ -81,7 +81,7 @@
   </head>
   <body>
     <header>
-      <h1>Text Editor Source HTML 1.1.1</h1>
+      <h1>Text Editor Source HTML 1.1.2</h1>
       <p>HTML source code editor extension for <a href="../text-editor/index.html">text editor</a>.</p>
       <hr>
       <p>Provides a set of key strokes to generate responses like in a typical <abbr title="Hyper Text Markup Language">HTML</abbr> source code editor.</p>
@@ -424,9 +424,7 @@ editor.record(); // Record the first history data!</code></pre>
     <script src="index.min.js"></script>
     <script>
       Object.assign(TE.prototype, TE.History.that, TE.Source.that);
-
       TE.prototype.toggleXML = TE.SourceXML.that.toggle;
-
       let editor = new TE(document.querySelector('textarea'), '  '),
           log = document.querySelector('#log'),
           map = new K(editor),
@@ -446,9 +444,7 @@ editor.record(); // Record the first history data!</code></pre>
               canKeyDown: canKeyDownSourceHTML,
               commands: commandsSourceHTML
           } = TE.SourceHTML;
-
       Object.assign(map.commands, commandsSourceHTML);
-
       map.keys['Control-b'] = 'bold';
       map.keys['Control-e'] = 'code';
       map.keys['Control-h'] = 'blocks';
@@ -457,7 +453,6 @@ editor.record(); // Record the first history data!</code></pre>
       map.keys['Control-o'] = 'image';
       map.keys['Control-q'] = 'quote';
       map.keys['Control-u'] = 'underline';
-
       editor.state = Object.assign({}, editor.state, TE.Source.state, TE.SourceXML.state, TE.SourceHTML.state);
       editor.state.source = Object.assign({}, editor.state.source, TE.Source.state.source, TE.SourceXML.state.source, TE.SourceHTML.state.source, {
           commands: map.commands,
@@ -485,14 +480,7 @@ editor.record(); // Record the first history data!</code></pre>
               }
               // Else, run the defaults!
           } else {
-              canKeyDownSourceHTML(map, editor) &&
-                  canKeyDownSourceXML(map, editor) &&
-                  canKeyDownSource(map, editor) &&
-                  canKeyDownDentSource(map, editor) &&
-                  canKeyDownEnterSource(map, editor) &&
-                  canKeyDownHistorySource(map, editor) &&
-                  canKeyDownMoveSource(map, editor) ||
-                  e.preventDefault();
+              canKeyDownSourceHTML(map, editor) && canKeyDownSourceXML(map, editor) && canKeyDownSource(map, editor) && canKeyDownDentSource(map, editor) && canKeyDownEnterSource(map, editor) && canKeyDownHistorySource(map, editor) && canKeyDownMoveSource(map, editor) || e.preventDefault();
           }
           log.textContent = map + "";
       }
@@ -532,7 +520,6 @@ editor.record(); // Record the first history data!</code></pre>
           editor.record(); // Record the first history data!
           return editor;
       }
-
       setEditor();
     </script>
   </body>
