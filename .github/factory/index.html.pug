@@ -44,7 +44,7 @@ block script
     |
     | function onKeyDown(e) {
     |     map.push(e.key);
-    |     let command = map.test();
+    |     let command = map.command();
     |     // Check for custom command…
     |     if (command) {
     |         let value = map.fire(command);
@@ -297,7 +297,7 @@ block content
       |
       |   editor.self.addEventListener('keydown', e =&gt; {
       |       map.push(e.key);
-      |       let command = map.test();
+      |       let command = map.command();
       |       // Check for custom command…
       |       if (command) {
       |           let value = map.fire(command);
@@ -402,7 +402,7 @@ block content
       |
       | editor.self.addEventListener('keydown', e =&gt; {
       |     map.push(e.key);
-      |     let command = map.test();
+      |     let command = map.command();
       |     // Check for custom command…
       |     if (command) {
       |         let value = map.fire(command);
@@ -504,7 +504,7 @@ block content
       |
       | editor.self.addEventListener('keydown', e =&gt; {
       |     map.push(e.key);
-      |     let command = map.test();
+      |     let command = map.command();
       |     // Check for custom command…
       |     if (command) {
       |         let value = map.fire(command);

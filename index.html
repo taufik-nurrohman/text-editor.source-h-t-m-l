@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width" name="viewport">
     <meta content="Provides a set of key strokes to generate responses like in a typical HTML source code editor." name="description">
-    <title>Text Editor Source HTML 1.1.3</title>
+    <title>Text Editor Source HTML 1.1.4</title>
     <style>
       * {
         box-sizing: border-box;
@@ -86,7 +86,7 @@
   </head>
   <body>
     <header>
-      <h1>Text Editor Source HTML 1.1.3</h1>
+      <h1>Text Editor Source HTML 1.1.4</h1>
       <p>HTML source code editor extension for <a href="../text-editor/index.html">text editor</a>.</p>
       <hr>
       <p>Provides a set of key strokes to generate responses like in a typical <abbr title="Hyper Text Markup Language">HTML</abbr> source code editor.</p>
@@ -178,7 +178,7 @@
 
   editor.self.addEventListener('keydown', e =&gt; {
       map.push(e.key);
-      let command = map.test();
+      let command = map.command();
       // Check for custom command…
       if (command) {
           let value = map.fire(command);
@@ -282,7 +282,7 @@ editor.self.addEventListener('input', () => map.pull());
 
 editor.self.addEventListener('keydown', e =&gt; {
     map.push(e.key);
-    let command = map.test();
+    let command = map.command();
     // Check for custom command…
     if (command) {
         let value = map.fire(command);
@@ -383,7 +383,7 @@ editor.self.addEventListener('input', () => map.pull());
 
 editor.self.addEventListener('keydown', e =&gt; {
     map.push(e.key);
-    let command = map.test();
+    let command = map.command();
     // Check for custom command…
     if (command) {
         let value = map.fire(command);
@@ -487,7 +487,7 @@ editor.record(); // Record the first history data!</code></pre>
 
       function onKeyDown(e) {
           map.push(e.key);
-          let command = map.test();
+          let command = map.command();
           // Check for custom command…
           if (command) {
               let value = map.fire(command);
