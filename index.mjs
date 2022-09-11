@@ -88,7 +88,7 @@ function toTidy(tidy) {
 function toggleBlocks(that) {
     let patternBefore = /<(?:h([1-6])|p)(\s[^>]*)?>$/,
         patternAfter = /^<\/(?:h[1-6]|p)>/;
-    that.match([patternBefore, /.*/, patternAfter], function(before, value, after) {
+    that.match([patternBefore, /.*/, patternAfter], function (before, value, after) {
         let t = this,
             h = +(before[1] || 0),
             attr = before[2] || "",
@@ -133,7 +133,7 @@ function toggleBlocks(that) {
 function toggleCodes(that) {
     let patternBefore = /<(?:pre|code)(?:\s[^>]*)?>(?:\s*<code(?:\s[^>]*)?>)?$/,
         patternAfter = /^(?:<\/code>\s*)?<\/(?:pre|code)>/;
-    that.match([patternBefore, /.*/, patternAfter], function(before, value, after) {
+    that.match([patternBefore, /.*/, patternAfter], function (before, value, after) {
         let t = this, tidy,
             elements = that.state.sourceHTML.elements;
         // ``
@@ -169,7 +169,7 @@ function toggleCodes(that) {
 function toggleQuotes(that) {
     let patternBefore = /<(blockquote|q)(?:\s[^>]*)?>\s*$/,
         patternAfter = /^\s*<\/(blockquote|q)>/;
-    that.match([patternBefore, /.*/, patternAfter], function(before, value, after) {
+    that.match([patternBefore, /.*/, patternAfter], function (before, value, after) {
         let t = this, tidy,
             state = that.state,
             charIndent = state.sourceHTML.tab || state.source.tab || state.tab || '\t',
@@ -212,24 +212,24 @@ function decode(x) {
 
 export const commands = {};
 
-commands.blocks = function() {
+commands.blocks = function () {
     let that = this;
     return that.record(), toggleBlocks(that), that.record(), false;
 };
 
-commands.bold = function() {
+commands.bold = function () {
     let that = this,
         state = that.state,
         elements = state.sourceHTML.elements || {};
     return that.record(), toggle.apply(this, elements.b), false;
 };
 
-commands.code = function() {
+commands.code = function () {
     let that = this;
     return that.record(), toggleCodes(that), that.record(), false;
 };
 
-commands.image = function(label = 'URL:', placeholder) {
+commands.image = function (label = 'URL:', placeholder) {
     let that = this,
         {after, before, value} = that.$(),
         state = that.state,
@@ -272,14 +272,14 @@ commands.image = function(label = 'URL:', placeholder) {
     return that.record(), false;
 };
 
-commands.italic = function() {
+commands.italic = function () {
     let that = this,
         state = that.state,
         elements = state.sourceHTML.elements || {};
     return that.record(), toggle.apply(this, elements.i), false;
 };
 
-commands.link = function(label = 'URL:', placeholder) {
+commands.link = function (label = 'URL:', placeholder) {
     let that = this,
         {value} = that.$(),
         state = that.state,
@@ -313,12 +313,12 @@ commands.link = function(label = 'URL:', placeholder) {
     return that.record(), false;
 };
 
-commands.quote = function() {
+commands.quote = function () {
     let that = this;
     return that.record(), toggleQuotes(that), that.record(), false;
 };
 
-commands.underline = function() {
+commands.underline = function () {
     let that = this,
         state = that.state,
         elements = state.sourceHTML.elements || {};

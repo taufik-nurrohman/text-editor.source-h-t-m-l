@@ -3,18 +3,18 @@
   "browser": "index.min.js",
   "bugs": "https://github.com/taufik-nurrohman/text-editor.source-h-t-m-l/issues",
   "dependencies": {
-    "@taufik-nurrohman/from": "^0.0.9",
-    "@taufik-nurrohman/key": "^2.0.4",
-    "@taufik-nurrohman/pattern": "^0.1.7",
-    "@taufik-nurrohman/text-editor": "^3.3.10",
-    "@taufik-nurrohman/text-editor.history": "^2.1.13",
-    "@taufik-nurrohman/text-editor.source": "^2.2.2",
-    "@taufik-nurrohman/text-editor.source-x-m-l": "^1.2.2",
-    "@taufik-nurrohman/to": "^0.0.18"
+    "@taufik-nurrohman/from": "*",
+    "@taufik-nurrohman/key": "*",
+    "@taufik-nurrohman/pattern": "*",
+    "@taufik-nurrohman/text-editor": "*",
+    "@taufik-nurrohman/text-editor.history": "*",
+    "@taufik-nurrohman/text-editor.source": "*",
+    "@taufik-nurrohman/text-editor.source-x-m-l": "*",
+    "@taufik-nurrohman/to": "*"
   },
   "description": "Provides a set of key strokes to generate responses like in a typical HTML source code editor.",
   "devDependencies": {
-    "@taufik-nurrohman/factory": "^1.0.2"
+    "@taufik-nurrohman/factory": "*"
   },
   "exports": {
     "import": "./index.mjs",
@@ -51,8 +51,8 @@
     "url": "git+https://github.com/taufik-nurrohman/text-editor.source-h-t-m-l.git"
   },
   "scripts": {
-    "pack": "pack --clean=false --from=.github/source --js-format=umd --js-name=TE.SourceHTML --js-top='%(js.license)' --mjs=true --to=."
+    "pack": "pack --clean=false --from=.github/factory --js-format=umd --js-name=TE.SourceHTML --js-top='%(js.license)' --mjs=true --to=."
   },
   "type": "module",
-  "version": "1.1.2"
+  "version": "1.1.3"
 }
