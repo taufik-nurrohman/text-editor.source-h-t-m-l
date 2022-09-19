@@ -221,7 +221,7 @@ commands.bold = function () {
     let that = this,
         state = that.state,
         elements = state.sourceHTML.elements || {};
-    return that.record(), toggle.apply(this, elements.b), false;
+    return that.record(), toggle.apply(that, elements.b), false;
 };
 
 commands.code = function () {
@@ -276,7 +276,7 @@ commands.italic = function () {
     let that = this,
         state = that.state,
         elements = state.sourceHTML.elements || {};
-    return that.record(), toggle.apply(this, elements.i), false;
+    return that.record(), toggle.apply(that, elements.i), false;
 };
 
 commands.link = function (label = 'URL:', placeholder) {
@@ -322,7 +322,7 @@ commands.underline = function () {
     let that = this,
         state = that.state,
         elements = state.sourceHTML.elements || {};
-    return that.record(), toggle.apply(this, elements.u), false;
+    return that.record(), toggle.apply(that, elements.u), false;
 };
 
 export function canKeyDown(map, that) {

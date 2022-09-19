@@ -488,7 +488,7 @@
         let that = this,
             state = that.state,
             elements = state.sourceHTML.elements || {};
-        return that.record(), toggle.apply(this, elements.b), false;
+        return that.record(), toggle.apply(that, elements.b), false;
     };
     commands.code = function() {
         let that = this;
@@ -544,7 +544,7 @@
         let that = this,
             state = that.state,
             elements = state.sourceHTML.elements || {};
-        return that.record(), toggle.apply(this, elements.i), false;
+        return that.record(), toggle.apply(that, elements.i), false;
     };
     commands.link = function(label = 'URL:', placeholder) {
         let that = this,
@@ -589,7 +589,7 @@
         let that = this,
             state = that.state,
             elements = state.sourceHTML.elements || {};
-        return that.record(), toggle.apply(this, elements.u), false;
+        return that.record(), toggle.apply(that, elements.u), false;
     };
 
     function canKeyDown(map, that) {
