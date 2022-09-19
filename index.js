@@ -536,7 +536,7 @@
                 } else {
                     that.insert('<' + element[0] + toAttributes(element[2]) + '>' + (false !== tidy ? tidy[1] : ""), -1, true);
                 }
-            });
+            }).catch(e => 0);
         }
         return that.record(), false;
     };
@@ -577,7 +577,7 @@
                     tidy = [' ', ' '];
                 }
                 toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), tidy]);
-            });
+            }).catch(e => 0);
         }
         return that.record(), false;
     };
@@ -681,6 +681,12 @@
                 if (element && false === element[1]) {
                     return that.insert('\n' + lineMatchIndent, -1).record(), false;
                 }
+            } // `<br>`
+            if (queue.Shift) {
+                let {
+                    br
+                } = elements;
+                return that.insert('<' + br[0] + toAttributes(br[2]) + '>' + (false === br[1] ? "" : br[1] + '</' + br[0] + '>') + '\n', -1).record(), false;
             }
             if (after && before) {
                 for (let i = 0, j = toCount(continueOnEnterTags); i < j; ++i) {
