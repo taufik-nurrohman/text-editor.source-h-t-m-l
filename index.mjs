@@ -3,7 +3,7 @@ import {esc, toPattern} from '@taufik-nurrohman/pattern';
 import {fromHTML, fromStates, fromValue} from '@taufik-nurrohman/from';
 import {isArray, isFunction, isSet, isString} from '@taufik-nurrohman/is';
 import {that, toAttributes} from '@taufik-nurrohman/text-editor.source-x-m-l';
-import {toCount} from '@taufik-nurrohman/to';
+import {toCount, toHTML} from '@taufik-nurrohman/to';
 
 const protocol = theLocation.protocol;
 
@@ -146,7 +146,7 @@ function toggleCodes(that) {
                 if (false !== (tidy = toTidy(tidy))) {
                     t.trim(tidy[0], tidy[1]);
                 }
-                t.insert(decode(value[0]));
+                t.insert(toHTML(value[0]));
             // `<pre><code>…</code></pre>`
             } else if (after[0].slice(0, 7) === '</' + elements.code[0] + '>') {
                 tidy = elements.pre[3];
@@ -161,7 +161,7 @@ function toggleCodes(that) {
             if (false !== (tidy = toTidy(tidy))) {
                 t.trim(tidy[0], tidy[1]);
             }
-            t.wrap('<' + elements.code[0] + toAttributes(elements.code[2]) + '>', '</' + elements.code[0] + '>').insert(encode(value[0] || elements.code[1]));
+            t.wrap('<' + elements.code[0] + toAttributes(elements.code[2]) + '>', '</' + elements.code[0] + '>').insert(fromHTML(value[0] || elements.code[1]));
         }
     });
 }
@@ -200,14 +200,6 @@ function toggleQuotes(that) {
             t.replace(toPattern('(^|\\n)' + charIndent), '$1');
         }
     });
-}
-
-function encode(x) {
-    return x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function decode(x) {
-    return x.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 }
 
 export const commands = {};
@@ -290,10 +282,10 @@ commands.link = function (label = 'URL:', placeholder) {
         if (m = toPattern(tagStart(element[0])).exec(before)) {
             wrapped = true;
             m = /\shref=(?:"([^"]+)"|'([^']+)'|([^>\/\s]+))/.exec(m[2]);
-            href = (m[1] || "") + (m[2] || "") + (m[3] || "");
+            href = toHTML((m[1] || "") + (m[2] || "") + (m[3] || ""));
         } else if (m = toPattern('^\\s*' + tagStart(element[0])).exec(value)) {
             m = /\shref=(?:"([^"]+)"|'([^']+)'|([^>\/\s]+))/.exec(m[2]);
-            href = (m[1] || "") + (m[2] || "") + (m[3] || "");
+            href = toHTML((m[1] || "") + (m[2] || "") + (m[3] || ""));
         }
         prompt(label, value && /^https?:\/\/\S+$/.test(value) ? value : (href || placeholder || protocol + '//')).then(href => {
             if (!href) {
