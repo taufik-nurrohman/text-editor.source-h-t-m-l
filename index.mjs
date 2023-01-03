@@ -86,8 +86,15 @@ function toTidy(tidy) {
 }
 
 function toggleBlocks(that) {
+    let {after, end, before, start, value} = that.$();
     let patternBefore = /<(?:h([1-6])|p)(\s[^>]*)?>$/,
         patternAfter = /^<\/(?:h[1-6]|p)>/;
+    // Wrap current line if selection is empty
+    if (!value) {
+        let lineAfter = after.split('\n').shift(),
+            lineBefore = before.split('\n').pop();
+        that.select(start - toCount(lineBefore), end + toCount(lineAfter));
+    }
     that.match([patternBefore, /.*/, patternAfter], function (before, value, after) {
         let t = this,
             h = +(before[1] || 0),
@@ -128,6 +135,11 @@ function toggleBlocks(that) {
             }
         }
     });
+    // Unwrap selection from block element(s)
+    if (value) {
+        that.replace(toPattern('^\\s*' + tagStart('blockquote|h[1-6]|p(re)?')), "");
+        that.replace(toPattern(tagEnd('blockquote|h[1-6]|p(re)?') + '\\s*$'), "");
+    }
 }
 
 function toggleCodes(that) {
