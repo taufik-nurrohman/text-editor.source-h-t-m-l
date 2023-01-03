@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width" name="viewport">
     <meta content="Provides a set of key strokes to generate responses like in a typical HTML source code editor." name="description">
-    <title>Text Editor Source HTML 1.1.6</title>
+    <title>Text Editor Source HTML 1.1.7</title>
     <style>
       * {
         box-sizing: border-box;
@@ -86,7 +86,7 @@
   </head>
   <body>
     <header>
-      <h1>Text Editor Source HTML 1.1.6</h1>
+      <h1>Text Editor Source HTML 1.1.7</h1>
       <p>HTML source code editor extension for <a href="../text-editor/index.html">text editor</a>.</p>
       <hr>
       <p>Provides a set of key strokes to generate responses like in a typical <abbr title="Hyper Text Markup Language">HTML</abbr> source code editor.</p>
@@ -145,9 +145,10 @@
   map.keys['Control-e'] = 'code';
   map.keys['Control-h'] = 'blocks';
   map.keys['Control-i'] = 'italic';
-  map.keys['Control-k'] = 'link';
+  map.keys['Control-l'] = 'link';
   map.keys['Control-o'] = 'image';
   map.keys['Control-q'] = 'quote';
+  map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
   map.keys['Control-u'] = 'underline';
 
   const {
@@ -270,9 +271,10 @@ map.keys['Control-b'] = 'bold';
 map.keys['Control-e'] = 'code';
 map.keys['Control-h'] = 'blocks';
 map.keys['Control-i'] = 'italic';
-map.keys['Control-k'] = 'link';
+map.keys['Control-l'] = 'link';
 map.keys['Control-o'] = 'image';
 map.keys['Control-q'] = 'quote';
+map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
 map.keys['Control-u'] = 'underline';
 
 editor.state = fromStates({}, editor.state, stateSource, stateSourceXML, stateSourceHTML, {
@@ -371,9 +373,10 @@ map.keys['Control-b'] = 'bold';
 map.keys['Control-e'] = 'code';
 map.keys['Control-h'] = 'blocks';
 map.keys['Control-i'] = 'italic';
-map.keys['Control-k'] = 'link';
+map.keys['Control-l'] = 'link';
 map.keys['Control-o'] = 'image';
 map.keys['Control-q'] = 'quote';
+map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
 map.keys['Control-u'] = 'underline';
 
 editor.state = fromStates({}, editor.state, stateSource, stateSourceXML, stateSourceHTML, {
@@ -435,7 +438,7 @@ editor.record(); // Record the first history data!</code></pre>
     </main>
     <footer>
       <hr>
-      <p>&copy; 2022 <a href="/">Taufik Nurrohman</a></p>
+      <p>&copy; 2023 <a href="/">Taufik Nurrohman</a></p>
     </footer>
     <script src="../key/index.min.js"></script>
     <script src="../text-editor/index.min.js"></script>
@@ -466,11 +469,12 @@ editor.record(); // Record the first history data!</code></pre>
               commands: commandsSourceHTML
           } = TE.SourceHTML;
       Object.assign(map.commands, commandsSourceHTML);
+      map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
       map.keys['Control-b'] = 'bold';
       map.keys['Control-e'] = 'code';
       map.keys['Control-h'] = 'blocks';
       map.keys['Control-i'] = 'italic';
-      map.keys['Control-k'] = 'link';
+      map.keys['Control-l'] = 'link';
       map.keys['Control-o'] = 'image';
       map.keys['Control-q'] = 'quote';
       map.keys['Control-u'] = 'underline';

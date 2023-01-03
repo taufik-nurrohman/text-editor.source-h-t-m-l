@@ -19,11 +19,12 @@ block script
     |
     | Object.assign(map.commands, commandsSourceHTML);
     |
+    | map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
     | map.keys['Control-b'] = 'bold';
     | map.keys['Control-e'] = 'code';
     | map.keys['Control-h'] = 'blocks';
     | map.keys['Control-i'] = 'italic';
-    | map.keys['Control-k'] = 'link';
+    | map.keys['Control-l'] = 'link';
     | map.keys['Control-o'] = 'image';
     | map.keys['Control-q'] = 'quote';
     | map.keys['Control-u'] = 'underline';
@@ -264,9 +265,10 @@ block content
       |   map.keys['Control-e'] = 'code';
       |   map.keys['Control-h'] = 'blocks';
       |   map.keys['Control-i'] = 'italic';
-      |   map.keys['Control-k'] = 'link';
+      |   map.keys['Control-l'] = 'link';
       |   map.keys['Control-o'] = 'image';
       |   map.keys['Control-q'] = 'quote';
+      |   map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
       |   map.keys['Control-u'] = 'underline';
       |
       |   const {
@@ -390,9 +392,10 @@ block content
       | map.keys['Control-e'] = 'code';
       | map.keys['Control-h'] = 'blocks';
       | map.keys['Control-i'] = 'italic';
-      | map.keys['Control-k'] = 'link';
+      | map.keys['Control-l'] = 'link';
       | map.keys['Control-o'] = 'image';
       | map.keys['Control-q'] = 'quote';
+      | map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
       | map.keys['Control-u'] = 'underline';
       |
       | editor.state = fromStates({}, editor.state, stateSource, stateSourceXML, stateSourceHTML, {
@@ -492,9 +495,10 @@ block content
       | map.keys['Control-e'] = 'code';
       | map.keys['Control-h'] = 'blocks';
       | map.keys['Control-i'] = 'italic';
-      | map.keys['Control-k'] = 'link';
+      | map.keys['Control-l'] = 'link';
       | map.keys['Control-o'] = 'image';
       | map.keys['Control-q'] = 'quote';
+      | map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
       | map.keys['Control-u'] = 'underline';
       |
       | editor.state = fromStates({}, editor.state, stateSource, stateSourceXML, stateSourceHTML, {

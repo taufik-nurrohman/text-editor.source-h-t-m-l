@@ -2,7 +2,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright © 2022 Taufik Nurrohman <https://github.com/taufik-nurrohman>
+ * Copyright © 2023 Taufik Nurrohman <https://github.com/taufik-nurrohman>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the “Software”), to deal
@@ -549,18 +549,30 @@
     commands.link = function(label = 'URL:', placeholder) {
         let that = this,
             {
+                before,
                 value
             } = that.$(),
             state = that.state,
             elements = state.sourceHTML.elements || {},
             prompt = state.source.prompt;
         if (isFunction(prompt)) {
-            prompt(label, value && /^https?:\/\/\S+$/.test(value) ? value : placeholder || protocol + '//').then(href => {
+            let element = elements.a,
+                href,
+                m,
+                wrapped;
+            if (m = toPattern(tagStart(element[0])).exec(before)) {
+                wrapped = true;
+                m = /\shref=(?:"([^"]+)"|'([^']+)'|([^>\/\s]+))/.exec(m[2]);
+                href = (m[1] || "") + (m[2] || "") + (m[3] || "");
+            } else if (m = toPattern('^\\s*' + tagStart(element[0])).exec(value)) {
+                m = /\shref=(?:"([^"]+)"|'([^']+)'|([^>\/\s]+))/.exec(m[2]);
+                href = (m[1] || "") + (m[2] || "") + (m[3] || "");
+            }
+            prompt(label, value && /^https?:\/\/\S+$/.test(value) ? value : href || placeholder || protocol + '//').then(href => {
                 if (!href) {
                     that.focus();
                     return;
                 }
-                let element = elements.a;
                 if (value) {
                     that.record(); // Record selection
                 }
@@ -576,7 +588,10 @@
                     // Tidy link with a space if there is no selection
                     tidy = [' ', ' '];
                 }
-                toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), tidy]);
+                if (wrapped) {
+                    toggle.apply(that, [element[0]]); // Unwrap if already wrapped, then…
+                }
+                toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), tidy]); // Wrap!
             }).catch(e => 0);
         }
         return that.record(), false;

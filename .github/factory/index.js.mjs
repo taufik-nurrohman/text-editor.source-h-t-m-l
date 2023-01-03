@@ -281,17 +281,25 @@ commands.italic = function () {
 
 commands.link = function (label = 'URL:', placeholder) {
     let that = this,
-        {value} = that.$(),
+        {before, value} = that.$(),
         state = that.state,
         elements = state.sourceHTML.elements || {},
         prompt = state.source.prompt;
     if (isFunction(prompt)) {
-        prompt(label, value && /^https?:\/\/\S+$/.test(value) ? value : (placeholder || protocol + '//')).then(href => {
+        let element = elements.a, href, m, wrapped;
+        if (m = toPattern(tagStart(element[0])).exec(before)) {
+            wrapped = true;
+            m = /\shref=(?:"([^"]+)"|'([^']+)'|([^>\/\s]+))/.exec(m[2]);
+            href = (m[1] || "") + (m[2] || "") + (m[3] || "");
+        } else if (m = toPattern('^\\s*' + tagStart(element[0])).exec(value)) {
+            m = /\shref=(?:"([^"]+)"|'([^']+)'|([^>\/\s]+))/.exec(m[2]);
+            href = (m[1] || "") + (m[2] || "") + (m[3] || "");
+        }
+        prompt(label, value && /^https?:\/\/\S+$/.test(value) ? value : (href || placeholder || protocol + '//')).then(href => {
             if (!href) {
                 that.focus();
                 return;
             }
-            let element = elements.a;
             if (value) {
                 that.record(); // Record selection
             }
@@ -307,7 +315,10 @@ commands.link = function (label = 'URL:', placeholder) {
                 // Tidy link with a space if there is no selection
                 tidy = [' ', ' '];
             }
-            toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), tidy]);
+            if (wrapped) {
+                toggle.apply(that, [element[0]]); // Unwrap if already wrapped, then…
+            }
+            toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), tidy]); // Wrap!
         }).catch(e => 0);
     }
     return that.record(), false;
