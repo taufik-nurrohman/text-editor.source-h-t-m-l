@@ -440,37 +440,59 @@
     }
 
     function toggleCodes(that) {
-        let patternBefore = /<(?:pre|code)(?:\s[^>]*)?>(?:\s*<code(?:\s[^>]*)?>)?$/,
-            patternAfter = /^(?:<\/code>\s*)?<\/(?:pre|code)>/;
-        that.match([patternBefore, /.*/, patternAfter], function(before, value, after) {
-            let t = this,
-                tidy,
-                defaults = that.state.defaults || {}; // ``
-            t.replace(patternBefore, "", -1);
-            t.replace(patternAfter, "", 1);
-            if (after[0]) {
-                // ``
-                if (/^(?:<\/code>\s*)?<\/pre>/.test(after[0])) {
-                    tidy = defaults[""][3];
+        let patternBefore = /<(pre|code)(?:\s[^>]*)?>(?:\s*<code(?:\s[^>]*)?>)?$/,
+            patternAfter = /^(?:<\/code>\s*)?<\/(pre|code)>/;
+        let {
+            after,
+            end,
+            before,
+            start,
+            value
+        } = that.$(),
+            state = that.state;
+        state.source.tab || state.tab || '\t';
+        let defaults = that.state.defaults || {};
+        if (!value && (!after || '\n' === after[0]) && (!before || '\n' === before.slice(-1))) {
+            that.wrap('<' + defaults.pre[0] + toAttributes(defaults.pre[2]) + '><' + defaults.code[0] + toAttributes(defaults.code[2]) + '>', '</' + defaults.code[0] + '></' + defaults.pre[0] + '>').insert(fromHTML(defaults.code[1]));
+        } else {
+            that.match([patternBefore, /[\s\S]*/, patternAfter], function(before, value, after) {
+                let t = this,
+                    tidy; // ``
+                t.replace(patternBefore, "", -1);
+                t.replace(patternAfter, "", 1);
+                if (value[0] && (/\n/.test(value[0]) || (!after[0] || '\n' === after[0][0]) && (!before[0] || '\n' === before[0].slice(-1)))) {
+                    if (false !== (tidy = toTidy(defaults.pre[3]))) {
+                        t.trim(tidy[0], tidy[1]);
+                    } // `<pre><code>…</code></pre>`
+                    if (defaults.pre[0] === after[1]) {
+                        t.insert(toHTML(value[0])); // ``
+                    } else {
+                        t.wrap('<' + defaults.pre[0] + toAttributes(defaults.pre[2]) + '><' + defaults.code[0] + toAttributes(defaults.code[2]) + '>', '</' + defaults.code[0] + '></' + defaults.pre[0] + '>').insert(fromHTML(value[0]));
+                    }
+                } else if (after[0]) {
+                    // ``
+                    if (/^(?:<\/code>\s*)?<\/pre>/.test(after[0])) {
+                        tidy = defaults[""][3];
+                        if (false !== (tidy = toTidy(tidy))) {
+                            t.trim(tidy[0], tidy[1]);
+                        }
+                        t.insert(toHTML(value[0])); // `<pre><code>…</code></pre>`
+                    } else if (after[0].slice(0, 7) === '</' + defaults.code[0] + '>') {
+                        tidy = defaults.pre[3];
+                        if (false !== (tidy = toTidy(tidy))) {
+                            t.trim(tidy[0], tidy[1]);
+                        }
+                        t.wrap('<' + defaults.pre[0] + toAttributes(defaults.pre[2]) + '><' + defaults.code[0] + toAttributes(defaults.code[2]) + '>', '</' + defaults.code[0] + '></' + defaults.pre[0] + '>');
+                    } // `<code>…</code>`
+                } else {
+                    tidy = defaults.code[3];
                     if (false !== (tidy = toTidy(tidy))) {
                         t.trim(tidy[0], tidy[1]);
                     }
-                    t.insert(toHTML(value[0])); // `<pre><code>…</code></pre>`
-                } else if (after[0].slice(0, 7) === '</' + defaults.code[0] + '>') {
-                    tidy = defaults.pre[3];
-                    if (false !== (tidy = toTidy(tidy))) {
-                        t.trim(tidy[0], tidy[1]);
-                    }
-                    t.wrap('<' + defaults.pre[0] + toAttributes(defaults.pre[2]) + '><' + defaults.code[0] + toAttributes(defaults.code[2]) + '>', '</' + defaults.code[0] + '></' + defaults.pre[0] + '>');
-                } // `<code>…</code>`
-            } else {
-                tidy = defaults.code[3];
-                if (false !== (tidy = toTidy(tidy))) {
-                    t.trim(tidy[0], tidy[1]);
+                    t.wrap('<' + defaults.code[0] + toAttributes(defaults.code[2]) + '>', '</' + defaults.code[0] + '>').insert(fromHTML(value[0] || defaults.code[1]));
                 }
-                t.wrap('<' + defaults.code[0] + toAttributes(defaults.code[2]) + '>', '</' + defaults.code[0] + '>').insert(fromHTML(value[0] || defaults.code[1]));
-            }
-        });
+            });
+        }
     }
 
     function toggleQuotes(that) {
@@ -494,12 +516,12 @@
                     tidy; // ``
                 t.replace(patternBefore, "", -1);
                 t.replace(patternAfter, "", 1);
-                if (value[0] && (/\n/.test(value[0]) || (!after || '\n' === after[0]) && (!before || '\n' === before.slice(-1)))) {
+                if (value[0] && (/\n/.test(value[0]) || (!after[0] || '\n' === after[0][0]) && (!before[0] || '\n' === before[0].slice(-1)))) {
                     if (false !== (tidy = toTidy(defaults.blockquote[3]))) {
                         t.trim(tidy[0], tidy[1]);
-                    }
+                    } // `<blockquote>…</blockquote>`
                     if (defaults.blockquote[0] === after[1]) {
-                        t.replace(toPattern('(^|\\n)' + charIndent), '$1');
+                        t.replace(toPattern('(^|\\n)' + charIndent), '$1'); // ``
                     } else {
                         t.wrap('<' + defaults.blockquote[0] + toAttributes(defaults.blockquote[2]) + '>\n', '\n</' + defaults.blockquote[0] + '>');
                         t.replace(toPattern('(^|\\n)'), '$1' + charIndent);
