@@ -8,58 +8,56 @@ import {toCount, toHTML} from '@taufik-nurrohman/to';
 const protocol = theLocation.protocol;
 
 const defaults = {
+    defaults: {
+        "": ["", 'text goes here…', {}, ""],
+        a: ['a', 'link text goes here…', {}],
+        area: ['area', false, {}],
+        b: ['strong', 'text goes here…', {}],
+        base: ['base', false, {href: ""}, '\n'],
+        blockquote: ['blockquote', "", {}, '\n'],
+        br: ['br', false, {}, ["", '\n']],
+        button: ['button', 'text goes here…', {name: "", type: 'submit'}, ' '],
+        caption: ['caption', 'table caption goes here…', {}, '\n'],
+        code: ['code', 'code goes here…', {}, ' '],
+        col: ['col', false, {}, '\n'],
+        em: ['em', 'text goes here…', {}],
+        figcaption: ['figcaption', 'image caption goes here…', {}, '\n'],
+        figure: ['figure', "", {}, '\n'],
+        h1: ['h1', 'title goes here…', {}, '\n'],
+        h2: ['h2', 'title goes here…', {}, '\n'],
+        h3: ['h3', 'title goes here…', {}, '\n'],
+        h4: ['h4', 'title goes here…', {}, '\n'],
+        h5: ['h5', 'title goes here…', {}, '\n'],
+        h6: ['h6', 'title goes here…', {}, '\n'],
+        hr: ['hr', false, {}, '\n'],
+        i: ['em', 'text goes here…', {}],
+        img: ['img', false, {alt: "", src: ""}, ' '],
+        input: ['input', false, {name: "", type: 'text'}, ' '],
+        li: ['li', 'list item goes here…', {}, '\n'],
+        link: ['link', false, {href: ""}, '\n'],
+        meta: ['meta', false, {}, '\n'],
+        ol: ['ol', "", {}, '\n'],
+        option: ['option', 'option goes here…', {}, '\n'],
+        p: ['p', 'paragraph goes here…', {}, '\n'],
+        param: ['param', false, {name: ""}, '\n'],
+        pre: ['pre', 'text goes here…', {}, '\n'],
+        q: ['q', 'quote goes here…', {}, ' '],
+        script: ['script', 'code goes here…', {}, '\n'],
+        select: ['select', "", {name: ""}, ' '],
+        source: ['source', false, {src: ""}, '\n'],
+        strong: ['strong', 'text goes here…', {}],
+        style: ['style', 'code goes here…', {}, '\n'],
+        td: ['td', 'data goes here…', {}, '\n'],
+        textarea: ['textarea', 'value goes here…', {name: ""}, ' '],
+        th: ['th', 'title goes here…', {}, '\n'],
+        tr: ['tr', "", {}, '\n'],
+        track: ['track', false, {}, '\n'],
+        u: ['u', 'text goes here…', {}],
+        ul: ['ul', "", {}, '\n'],
+        wbr: ['wbr', false, {}, ["", '\n']]
+    },
     source: {
         type: 'HTML'
-    },
-    sourceHTML: {
-        defaults: {
-            "": ["", 'text goes here…', {}, ""],
-            a: ['a', 'link text goes here…', {}],
-            area: ['area', false, {}],
-            b: ['strong', 'text goes here…', {}],
-            base: ['base', false, {href: ""}, '\n'],
-            blockquote: ['blockquote', "", {}, '\n'],
-            br: ['br', false, {}, ["", '\n']],
-            button: ['button', 'text goes here…', {name: "", type: 'submit'}, ' '],
-            caption: ['caption', 'caption goes here…', {}, '\n'],
-            code: ['code', 'code goes here…', {}, ' '],
-            col: ['col', false, {}, '\n'],
-            em: ['em', 'text goes here…', {}],
-            figcaption: ['figcaption', 'caption goes here…', {}, '\n'],
-            figure: ['figure', "", {}, '\n'],
-            h1: ['h1', 'title goes here…', {}, '\n'],
-            h2: ['h2', 'title goes here…', {}, '\n'],
-            h3: ['h3', 'title goes here…', {}, '\n'],
-            h4: ['h4', 'title goes here…', {}, '\n'],
-            h5: ['h5', 'title goes here…', {}, '\n'],
-            h6: ['h6', 'title goes here…', {}, '\n'],
-            hr: ['hr', false, {}, '\n'],
-            i: ['em', 'text goes here…', {}],
-            img: ['img', false, {alt: "", src: ""}, ' '],
-            input: ['input', false, {name: "", type: 'text'}, ' '],
-            li: ['li', 'list item goes here…', {}, '\n'],
-            link: ['link', false, {href: ""}, '\n'],
-            meta: ['meta', false, {}, '\n'],
-            ol: ['ol', "", {}, '\n'],
-            option: ['option', 'option goes here…', {}, '\n'],
-            p: ['p', 'paragraph goes here…', {}, '\n'],
-            param: ['param', false, {name: ""}, '\n'],
-            pre: ['pre', 'text goes here…', {}, '\n'],
-            q: ['q', 'quote goes here…', {}, ' '],
-            script: ['script', "", {}, '\n'],
-            select: ['select', "", {name: ""}, ' '],
-            source: ['source', false, {src: ""}, '\n'],
-            strong: ['strong', 'text goes here…', {}],
-            style: ['style', "", {}, '\n'],
-            td: ['td', 'data goes here…', {}, '\n'],
-            textarea: ['textarea', 'text goes here…', {name: ""}, ' '],
-            th: ['th', 'title goes here…', {}, '\n'],
-            tr: ['tr', "", {}, '\n'],
-            track: ['track', false, {}, '\n'],
-            u: ['u', 'text goes here…', {}],
-            ul: ['ul', "", {}, '\n'],
-            wbr: ['wbr', false, {}, ["", '\n']]
-        }
     }
 };
 
@@ -86,20 +84,28 @@ function toTidy(tidy) {
 }
 
 function toggleBlocks(that) {
-    let {after, end, before, start, value} = that.$();
     let patternBefore = /<(?:h([1-6])|p)(\s[^>]*)?>$/,
         patternAfter = /^<\/(?:h[1-6]|p)>/;
+    let {after, end, before, start, value} = that.$(),
+        state = that.state,
+        charIndent = state.source.tab || state.tab || '\t',
+        defaults = state.defaults || {};
     // Wrap current line if selection is empty
     if (!value) {
         let lineAfter = after.split('\n').shift(),
             lineBefore = before.split('\n').pop();
-        that.select(start - toCount(lineBefore), end + toCount(lineAfter));
+        if (!lineAfter.trim() && !lineBefore.trim()) {
+            that.insert(defaults.h1[1]);
+        } else {
+            that.select(start - toCount(lineBefore), end + toCount(lineAfter));
+        }
     }
+    let lineMatch = before.split('\n').pop().match(/^(\s+)/),
+        lineMatchIndent = lineMatch && lineMatch[1] || "";
     that.match([patternBefore, /.*/, patternAfter], function (before, value, after) {
         let t = this,
             h = +(before[1] || 0),
             attr = before[2] || "",
-            defaults = that.state.sourceHTML.defaults || {},
             element = before[0] ? defaults[before[0].slice(1, -1).split(/\s/)[0]] : ["", "", {}];
         if (!attr && element[2]) {
             attr = toAttributes(element[2]);
@@ -114,32 +120,31 @@ function toggleBlocks(that) {
         }
         if (!h) {
             // `<h1>`
-            t.wrap('<' + defaults.h1[0] + (attr || toAttributes(defaults.h1[2])) + '>', '</' + defaults.h1[0] + '>');
-            if (!value[0] || value[0] === defaults.p[1]) {
+            t.wrap(lineMatchIndent + '<' + defaults.h1[0] + (attr || toAttributes(defaults.h1[2])) + '>', '</' + defaults.h1[0] + '>');
+            if (!value[0] || value[0] === defaults.h1[1] || value[0] === defaults.h2[1] || value[0] === defaults.h3[1] || value[0] === defaults.h4[1] || value[0] === defaults.h5[1] || value[0] === defaults.h6[1] || value[0] === defaults.p[1]) {
                 t.insert(defaults.h1[1]);
             }
         } else {
             ++h;
             if (h > 6) {
                 // `<p>`
-                t.wrap('<' + defaults.p[0] + (attr || toAttributes(defaults.p[2])) + '>', '</' + defaults.p[0] + '>');
-                if (!value[0] || value[0] === defaults.h6[1]) {
+                t.wrap(lineMatchIndent + '<' + defaults.p[0] + (attr || toAttributes(defaults.p[2])) + '>', '</' + defaults.p[0] + '>');
+                if (!value[0] || value[0] === defaults.h1[1] || value[0] === defaults.h2[1] || value[0] === defaults.h3[1] || value[0] === defaults.h4[1] || value[0] === defaults.h5[1] || value[0] === defaults.h6[1] || value[0] === defaults.p[1]) {
                     t.insert(defaults.p[1]);
                 }
             } else {
                 // `<h1>`, `<h2>`, `<h3>`, `<h4>`, `<h5>`, `<h6>`
-                t.wrap('<' + defaults['h' + h][0] + (attr || toAttributes(defaults['h' + h][2])) + '>', '</' + defaults['h' + h][0] + '>');
-                if (!value[0] || value[0] === defaults.p[1]) {
+                t.wrap(lineMatchIndent + '<' + defaults['h' + h][0] + (attr || toAttributes(defaults['h' + h][2])) + '>', '</' + defaults['h' + h][0] + '>');
+                if (!value[0] || value[0] === defaults.h1[1] || value[0] === defaults.h2[1] || value[0] === defaults.h3[1] || value[0] === defaults.h4[1] || value[0] === defaults.h5[1] || value[0] === defaults.h6[1] || value[0] === defaults.p[1]) {
                     t.insert(defaults['h' + h][1]);
                 }
             }
         }
+        t.replace(toPattern('^(' + tagEnd('h[1-6]|p') + ')\\s*(' + tagEnd(tagName) + ')'), '$1\n' + lineMatchIndent.replace(toPattern('^' + charIndent), "") + '$3', 1);
     });
     // Unwrap selection from block element(s)
-    if (value) {
-        that.replace(toPattern('^\\s*' + tagStart('blockquote|h[1-6]|p(re)?')), "");
-        that.replace(toPattern(tagEnd('blockquote|h[1-6]|p(re)?') + '\\s*$'), "");
-    }
+    that.replace(toPattern('^\\s*' + tagStart('blockquote|h[1-6]|p(re)?')), "");
+    that.replace(toPattern(tagEnd('blockquote|h[1-6]|p(re)?') + '\\s*$'), "");
 }
 
 function toggleCodes(that) {
@@ -147,7 +152,7 @@ function toggleCodes(that) {
         patternAfter = /^(?:<\/code>\s*)?<\/(?:pre|code)>/;
     that.match([patternBefore, /.*/, patternAfter], function (before, value, after) {
         let t = this, tidy,
-            defaults = that.state.sourceHTML.defaults;
+            defaults = that.state.defaults || {};
         // ``
         t.replace(patternBefore, "", -1);
         t.replace(patternAfter, "", 1);
@@ -184,8 +189,8 @@ function toggleQuotes(that) {
     that.match([patternBefore, /.*/, patternAfter], function (before, value, after) {
         let t = this, tidy,
             state = that.state,
-            charIndent = state.sourceHTML.tab || state.source.tab || state.tab || '\t',
-            defaults = that.state.sourceHTML.defaults || {};
+            charIndent = state.source.tab || state.tab || '\t',
+            defaults = that.state.defaults || {};
         // ``
         t.replace(patternBefore, "", -1);
         t.replace(patternAfter, "", 1);
@@ -224,7 +229,7 @@ commands.blocks = function () {
 commands.bold = function () {
     let that = this,
         state = that.state,
-        defaults = state.sourceHTML.defaults || {};
+        defaults = state.defaults || {};
     return that.record(), toggle.apply(that, defaults.b), false;
 };
 
@@ -237,8 +242,8 @@ commands.image = function (label = 'URL:', placeholder) {
     let that = this,
         {after, before, value} = that.$(),
         state = that.state,
-        defaults = state.sourceHTML.defaults || {},
-        charIndent = state.sourceHTML.tab || state.source.tab || state.tab || '\t',
+        charIndent = state.source.tab || state.tab || '\t',
+        defaults = state.defaults || {},
         lineBefore = before.split('\n').pop(),
         lineMatch = lineBefore.match(/^(\s+)/),
         lineMatchIndent = lineMatch && lineMatch[1] || "",
@@ -279,7 +284,7 @@ commands.image = function (label = 'URL:', placeholder) {
 commands.italic = function () {
     let that = this,
         state = that.state,
-        defaults = state.sourceHTML.defaults || {};
+        defaults = state.defaults || {};
     return that.record(), toggle.apply(that, defaults.i), false;
 };
 
@@ -287,7 +292,7 @@ commands.link = function (label = 'URL:', placeholder) {
     let that = this,
         {before, value} = that.$(),
         state = that.state,
-        defaults = state.sourceHTML.defaults || {},
+        defaults = state.defaults || {},
         prompt = state.source.prompt;
     if (isFunction(prompt)) {
         let element = defaults.a, href, m, wrapped;
@@ -336,7 +341,7 @@ commands.quote = function () {
 commands.underline = function () {
     let that = this,
         state = that.state,
-        defaults = state.sourceHTML.defaults || {};
+        defaults = state.defaults || {};
     return that.record(), toggle.apply(that, defaults.u), false;
 };
 
@@ -344,8 +349,8 @@ export function canKeyDown(map, that) {
     let state = that.state,
         charAfter,
         charBefore,
-        charIndent = state.sourceHTML.tab || state.source.tab || state.tab || '\t',
-        defaults = state.sourceHTML.defaults || {},
+        charIndent = state.source.tab || state.tab || '\t',
+        defaults = state.defaults || {},
         {key, queue} = map;
     if (queue.Control) {
         let {after, before, end, start, value} = that.$(),
@@ -356,7 +361,7 @@ export function canKeyDown(map, that) {
         if ('Enter' === key) {
             let m = lineAfter.match(toPattern(tagEnd(tagName) + '\\s*$', "")), n,
                 element = defaults[n = m && m[1] || 'p'] || defaults.p;
-            element[3] = ['\n' + lineMatchIndent, '\n' + lineMatchIndent];
+            element[3] = ['\n' + lineMatchIndent, '\n' + (!queue.Shift && after && toPattern('^\\s*' + tagEnd(tagName)).test(after.split('\n')[1] || "") ? lineMatchIndent.replace(toPattern('^' + charIndent), "") : lineMatchIndent)];
             that.select(queue.Shift ? start - toCount(lineBefore) : end + toCount(lineAfter));
             toggle.apply(that, element);
             return that.record(), false;
@@ -406,7 +411,7 @@ export function canKeyDown(map, that) {
             lineMatch = lineBefore.match(/^(\s+)/),
             lineMatchIndent = lineMatch && lineMatch[1] || "", m, n;
         let continueOnEnterTags = ['li', 'option', 'p', 'td', 'th'],
-            noIndentOnEnterTags = ['script', 'style'];
+            noIndentOnEnterTags = ['pre', 'script', 'style'];
         if (m = lineBefore.match(toPattern(tagStart(tagName) + '$', ""))) {
             let element = defaults[m[1]];
             if (element && false === element[1]) {

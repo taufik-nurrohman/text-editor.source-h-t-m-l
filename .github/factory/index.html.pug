@@ -32,8 +32,15 @@ block script
     | editor.state = Object.assign({}, editor.state, TE.Source.state, TE.SourceXML.state, TE.SourceHTML.state);
     | editor.state.source = Object.assign({}, editor.state.source, TE.Source.state.source, TE.SourceXML.state.source, TE.SourceHTML.state.source, {
     |     commands: map.commands,
-    |     keys: map.keys
+    |     keys: map.keys,
     | });
+    |
+    | editor.state.defaults.h1[1] = 'title level 1 goes here…';
+    | editor.state.defaults.h2[1] = 'title level 2 goes here…';
+    | editor.state.defaults.h3[1] = 'title level 3 goes here…';
+    | editor.state.defaults.h4[1] = 'title level 4 goes here…';
+    | editor.state.defaults.h5[1] = 'title level 5 goes here…';
+    | editor.state.defaults.h6[1] = 'title level 6 goes here…';
     |
     | function onBlur() {
     |     map.pull(); // Reset all!
