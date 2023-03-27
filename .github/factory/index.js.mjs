@@ -14,7 +14,7 @@ const defaults = {
         area: ['area', false, {}],
         b: ['strong', 'text goes here…', {}],
         base: ['base', false, {href: ""}, '\n'],
-        blockquote: ['blockquote', "", {}, '\n'],
+        blockquote: ['blockquote', 'quote goes here…', {}, '\n'],
         br: ['br', false, {}, ["", '\n']],
         button: ['button', 'text goes here…', {name: "", type: 'submit'}, ' '],
         caption: ['caption', 'table caption goes here…', {}, '\n'],
@@ -186,37 +186,55 @@ function toggleCodes(that) {
 function toggleQuotes(that) {
     let patternBefore = /<(blockquote|q)(?:\s[^>]*)?>\s*$/,
         patternAfter = /^\s*<\/(blockquote|q)>/;
-    that.match([patternBefore, /.*/, patternAfter], function (before, value, after) {
-        let t = this, tidy,
-            state = that.state,
-            charIndent = state.source.tab || state.tab || '\t',
-            defaults = that.state.defaults || {};
-        // ``
-        t.replace(patternBefore, "", -1);
-        t.replace(patternAfter, "", 1);
-        if (after[0]) {
+    let {after, end, before, start, value} = that.$(),
+        state = that.state,
+        charIndent = state.source.tab || state.tab || '\t',
+        defaults = that.state.defaults || {};
+    if (!value && (!after || '\n' === after[0]) && (!before || '\n' === before.slice(-1))) {
+        that.wrap('<' + defaults.blockquote[0] + toAttributes(defaults.blockquote[2]) + '>', '</' + defaults.blockquote[0] + '>').insert(defaults.blockquote[1]);
+    } else {
+        that.match([patternBefore, /[\s\S]*/, patternAfter], function (before, value, after) {
+            let t = this, tidy;
             // ``
-            if (defaults.blockquote[0] === after[1]) {
-                if (false !== (tidy = toTidy(defaults[""][3]))) {
-                    t.trim(tidy[0], tidy[1]);
-                }
-            // `<blockquote>…</blockquote>`
-            } else if (defaults.q[0] === after[1]) {
+            t.replace(patternBefore, "", -1);
+            t.replace(patternAfter, "", 1);
+            if (value[0] && (/\n/.test(value[0]) || ((!after || '\n' === after[0]) && (!before || '\n' === before.slice(-1))))) {
                 if (false !== (tidy = toTidy(defaults.blockquote[3]))) {
                     t.trim(tidy[0], tidy[1]);
                 }
-                t.wrap('<' + defaults.blockquote[0] + toAttributes(defaults.blockquote[2]) + '>\n', '\n</' + defaults.blockquote[0] + '>').insert(value[0] || defaults.blockquote[1]);
-                t.replace(toPattern('(^|\\n)'), '$1' + charIndent);
+                if (defaults.blockquote[0] === after[1]) {
+                    t.replace(toPattern('(^|\\n)' + charIndent), '$1');
+                } else {
+                    t.wrap('<' + defaults.blockquote[0] + toAttributes(defaults.blockquote[2]) + '>\n', '\n</' + defaults.blockquote[0] + '>');
+                    t.replace(toPattern('(^|\\n)'), '$1' + charIndent);
+                }
+            } else if (after[0]) {
+                // ``
+                if (defaults.blockquote[0] === after[1]) {
+                    if (false !== (tidy = toTidy(defaults[""][3]))) {
+                        t.trim(tidy[0], tidy[1]);
+                    }
+                    t.replace(toPattern('(^|\\n)' + charIndent), '$1');
+                // `<blockquote>…</blockquote>`
+                } else if (defaults.q[0] === after[1]) {
+                    if (false !== (tidy = toTidy(defaults.blockquote[3]))) {
+                        t.trim(tidy[0], tidy[1]);
+                    }
+                    t.wrap('<' + defaults.blockquote[0] + toAttributes(defaults.blockquote[2]) + '>\n', '\n</' + defaults.blockquote[0] + '>').insert(value[0] || defaults.blockquote[1]);
+                    if (value[0] !== defaults.blockquote[1] && value[0] !== defaults.q[1]) {
+                        t.replace(toPattern('(^|\\n)'), '$1' + charIndent);
+                    }
+                }
+            // `<q>…</q>`
+            } else {
+                if (false !== (tidy = toTidy(defaults.q[3]))) {
+                    t.trim(tidy[0], tidy[1]);
+                }
+                t.wrap('<' + defaults.q[0] + toAttributes(defaults.q[2]) + '>', '</' + defaults.q[0] + '>').insert(value[0] || defaults.q[1]);
+                t.replace(toPattern('(^|\\n)' + charIndent), '$1');
             }
-        // `<q>…</q>`
-        } else {
-            if (false !== (tidy = toTidy(defaults.q[3]))) {
-                t.trim(tidy[0], tidy[1]);
-            }
-            t.wrap('<' + defaults.q[0] + toAttributes(defaults.q[2]) + '>', '</' + defaults.q[0] + '>').insert(value[0] || defaults.q[1]);
-            t.replace(toPattern('(^|\\n)' + charIndent), '$1');
-        }
-    });
+        });
+    }
 }
 
 export const commands = {};
