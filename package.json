@@ -4,6 +4,7 @@
   "bugs": "https://github.com/taufik-nurrohman/text-editor.source-h-t-m-l/issues",
   "dependencies": {
     "@taufik-nurrohman/from": "*",
+    "@taufik-nurrohman/has": "*",
     "@taufik-nurrohman/key": "*",
     "@taufik-nurrohman/pattern": "*",
     "@taufik-nurrohman/text-editor": "*",
@@ -53,5 +54,5 @@
   "scripts": {
     "pack": "pack --clean=false --from=.github/factory --js-format=umd --js-name=TE.SourceHTML --js-top='%(js.license)' --mjs=true --to=."
   },
-  "version": "1.1.11"
+  "version": "1.1.12"
 }
