@@ -200,7 +200,7 @@ function toggleCodes(that) {
             } else if (defaults.code[0] === after[1]) {
                 that.insert(toHTML(value[0]));
             } else {
-                toggle.apply(that, [...defaults.code, ...(value && defaults.code[1] !== value ? "" : ' ')]);
+                toggle.apply(that, [...defaults.code, ...(value && defaults.code[1] !== value ? false : ' ')]);
             }
         });
     }
@@ -274,7 +274,7 @@ commands.bold = function () {
         state = that.state,
         defaults = state.defaults || {},
         {value} = that.$();
-    return that.record(), toggle.apply(that, [...defaults.b, ...(value && defaults.b[1] !== value ? "" : ' ')]), false;
+    return that.record(), toggle.apply(that, [...defaults.b, ...(value && defaults.b[1] !== value ? false : ' ')]), false;
 };
 
 commands.code = function () {
@@ -322,7 +322,7 @@ commands.italic = function () {
         state = that.state,
         defaults = state.defaults || {},
         {value} = that.$();
-    return that.record(), toggle.apply(that, [...defaults.i, ...(value && defaults.i[1] !== value ? "" : ' ')]), false;
+    return that.record(), toggle.apply(that, [...defaults.i, ...(value && defaults.i[1] !== value ? false : ' ')]), false;
 };
 
 commands.link = function (label = 'URL:', placeholder) {
@@ -360,7 +360,7 @@ commands.link = function (label = 'URL:', placeholder) {
             if (wrapped) {
                 toggle.apply(that, [element[0]]); // Unwrap if already wrapped, then…
             }
-            toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), value && element[1] !== value ? "" : ' ']); // Wrap!
+            toggle.apply(that, [element[0], element[1], fromStates(extras, element[2]), value && element[1] !== value ? false : ' ']); // Wrap!
         }).catch(e => 0);
     }
     return that.record(), false;
@@ -376,7 +376,7 @@ commands.underline = function () {
         state = that.state,
         defaults = state.defaults || {},
         {value} = that.$();
-    return that.record(), toggle.apply(that, [...defaults.u, ...(value && defaults.u[1] !== value ? "" : ' ')]), false;
+    return that.record(), toggle.apply(that, [...defaults.u, ...(value && defaults.u[1] !== value ? false : ' ')]), false;
 };
 
 export function canKeyDown(map, that) {
