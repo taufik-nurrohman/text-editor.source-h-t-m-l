@@ -435,6 +435,7 @@
             that.replace(patternAfter, "", 1);
             if (!h) {
                 // `<h1>`
+                that.trim('\n', '\n');
                 that.wrap(lineMatchIndent + '<' + defaults.h1[0] + (attr || toAttributes(defaults.h1[2])) + '>', '</' + defaults.h1[0] + '>');
                 if (!value[0] || isValueDefaultBlocks(value[0], defaults)) {
                     that.insert(defaults.h1[1]);
@@ -527,7 +528,15 @@
             state = that.state,
             charIndent = state.source.tab || state.tab || '\t',
             defaults = that.state.defaults || {};
-        if (value && !isBlock(before, value, after) && !patternBefore.test(before) && !patternAfter.test(after) && defaults.blockquote[1] !== value && defaults.p[1] !== value) {
+        var block,
+            blocks = [],
+            list = state.blocks;
+        for (block in list) {
+            if (list[block]) {
+                blocks.push(block);
+            }
+        }
+        if (value && !isBlock(before, value, after) && !toPattern(tagEnd(blocks.join('|')), 'i').test(value) && !patternBefore.test(before) && !patternAfter.test(after) && defaults.blockquote[1] !== value && defaults.p[1] !== value) {
             return that.record(), toggle.apply(that, [].concat(defaults.q, defaults.q[1] !== value ? false : ' '));
         }
         // Wrap current line if selection is empty
@@ -550,22 +559,14 @@
         var lineMatch = before.split('\n').pop().match(/^(\s+)/),
             lineMatchIndent = lineMatch && lineMatch[1] || "";
         that.match([patternBefore, /[\s\S]*/, patternAfter], function (before, value, after) {
-            console.log(after);
             // `<blockquote>…</blockquote>`
             if (defaults.blockquote[0] === after[3]) {
                 that.replace(patternBefore, "", -1);
                 that.replace(patternAfter, "", 1);
                 that.pull(charIndent);
             } else {
+                that.trim('\n', '\n');
                 // Check if selection contains block tag(s) or a line break
-                var block,
-                    blocks = [],
-                    list = defaults.blocks;
-                for (block in list) {
-                    if (list[block]) {
-                        blocks.push(block);
-                    }
-                }
                 if (hasValue('\n', value[0]) || toPattern(tagEnd(blocks.join('|')), 'i').test(value[0])) {
                     that.wrap(lineMatchIndent + '<' + defaults.blockquote[0] + toAttributes(defaults.blockquote[2]) + '>\n', '\n' + lineMatchIndent + '</' + defaults.blockquote[0] + '>');
                     that.push(charIndent);
