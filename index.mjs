@@ -4,11 +4,30 @@ import {fromHTML, fromStates, fromValue} from '@taufik-nurrohman/from';
 import {hasValue} from '@taufik-nurrohman/has';
 import {isArray, isFunction, isSet, isString} from '@taufik-nurrohman/is';
 import {that, toAttributes} from '@taufik-nurrohman/text-editor.source-x-m-l';
-import {toCount, toHTML} from '@taufik-nurrohman/to';
+import {toCount, toHTML, toObjectKeys} from '@taufik-nurrohman/to';
 
 const protocol = theLocation.protocol;
 
 const defaults = {
+    blocks: {
+        blockquote: 1,
+        div: 1,
+        dl: 1,
+        figure: 1,
+        form: 1,
+        h1: 1,
+        h2: 1,
+        h3: 1,
+        h4: 1,
+        h5: 1,
+        h6: 1,
+        hr: 1,
+        ol: 1,
+        p: 1,
+        pre: 1,
+        table: 1,
+        ul: 1
+    },
     defaults: {
         "": ["", 'text goes here…', {}],
         a: ['a', 'link text goes here…', {}],
@@ -82,20 +101,6 @@ function isBlock(before, value, after) {
 
 function isValueDefaultBlocks(value, defaults) {
     return value === defaults.h1[1] || value === defaults.h2[1] || value === defaults.h3[1] || value === defaults.h4[1] || value === defaults.h5[1] || value === defaults.h6[1] || value === defaults.p[1];
-}
-
-function toTidy(tidy) {
-    if (false !== tidy) {
-        if (isString(tidy)) {
-            tidy = [tidy, tidy];
-        } else if (!isArray(tidy)) {
-            tidy = ["", ""];
-        }
-        if (!isSet(tidy[1])) {
-            tidy[1] = tidy[0];
-        }
-    }
-    return tidy; // Return `[…]` or `false`
 }
 
 function toggleBlocks(that) {
@@ -213,12 +218,15 @@ function toggleCodes(that) {
 }
 
 function toggleQuotes(that) {
-    let patternBefore = /<(blockquote)(?:\s[^>]*)?>\s*(<p(?:\s[^>]*)?>)?$/,
-        patternAfter = /^(<\/p>)?\s*<\/(blockquote)>/;
+    let patternBefore = toPattern(tagStart('blockquote') + '\\s*(' + tagStart('p') + ')?\\s*$', ""),
+        patternAfter = toPattern('^\\s*(' + tagEnd('p') + ')?\\s*' + tagEnd('blockquote'), "");
     let {after, end, before, start, value} = that.$(),
         state = that.state,
         charIndent = state.source.tab || state.tab || '\t',
         defaults = that.state.defaults || {};
+    if (value && !isBlock(before, value, after) && !patternBefore.test(before) && !patternAfter.test(after) && defaults.blockquote[1] !== value && defaults.p[1] !== value) {
+        return that.record(), toggle.apply(that, [...defaults.q, ...(defaults.q[1] !== value ? false : ' ')]);
+    }
     // Wrap current line if selection is empty
     if (!value) {
         let lineAfter = after.split('\n').shift(),
@@ -239,14 +247,21 @@ function toggleQuotes(that) {
     let lineMatch = before.split('\n').pop().match(/^(\s+)/),
         lineMatchIndent = lineMatch && lineMatch[1] || "";
     that.match([patternBefore, /[\s\S]*/, patternAfter], function (before, value, after) {
+        console.log(after);
         // `<blockquote>…</blockquote>`
-        if (defaults.blockquote[0] === after[1] || defaults.blockquote[0] === after[2]) {
+        if (defaults.blockquote[0] === after[3]) {
             that.replace(patternBefore, "", -1);
             that.replace(patternAfter, "", 1);
             that.pull(charIndent);
         } else {
             // Check if selection contains block tag(s) or a line break
-            if (hasValue('\n', value[0]) || /<\/(figure|form|dl|h[1-6]|[ou]l|p(re)?|table)>/i.test(value[0])) {
+            let block, blocks = [], list = defaults.blocks;
+            for (block in list) {
+                if (list[block]) {
+                    blocks.push(block);
+                }
+            }
+            if (hasValue('\n', value[0]) || toPattern(tagEnd(blocks.join('|')), 'i').test(value[0])) {
                 that.wrap(lineMatchIndent + '<' + defaults.blockquote[0] + toAttributes(defaults.blockquote[2]) + '>\n', '\n' + lineMatchIndent + '</' + defaults.blockquote[0] + '>');
                 that.push(charIndent);
             } else {

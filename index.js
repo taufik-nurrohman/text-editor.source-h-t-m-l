@@ -276,6 +276,25 @@
     };
     var protocol = theLocation.protocol;
     var defaults = {
+        blocks: {
+            blockquote: 1,
+            div: 1,
+            dl: 1,
+            figure: 1,
+            form: 1,
+            h1: 1,
+            h2: 1,
+            h3: 1,
+            h4: 1,
+            h5: 1,
+            h6: 1,
+            hr: 1,
+            ol: 1,
+            p: 1,
+            pre: 1,
+            table: 1,
+            ul: 1
+        },
         defaults: {
             "": ["", 'text goes here…', {}],
             a: ['a', 'link text goes here…', {}],
@@ -497,8 +516,8 @@
     }
 
     function toggleQuotes(that) {
-        var patternBefore = /<(blockquote)(?:\s[^>]*)?>\s*(<p(?:\s[^>]*)?>)?$/,
-            patternAfter = /^(<\/p>)?\s*<\/(blockquote)>/;
+        var patternBefore = toPattern(tagStart('blockquote') + '\\s*(' + tagStart('p') + ')?\\s*$', ""),
+            patternAfter = toPattern('^\\s*(' + tagEnd('p') + ')?\\s*' + tagEnd('blockquote'), "");
         var _that$$3 = that.$(),
             after = _that$$3.after,
             end = _that$$3.end,
@@ -508,6 +527,9 @@
             state = that.state,
             charIndent = state.source.tab || state.tab || '\t',
             defaults = that.state.defaults || {};
+        if (value && !isBlock(before, value, after) && !patternBefore.test(before) && !patternAfter.test(after) && defaults.blockquote[1] !== value && defaults.p[1] !== value) {
+            return that.record(), toggle.apply(that, [].concat(defaults.q, defaults.q[1] !== value ? false : ' '));
+        }
         // Wrap current line if selection is empty
         if (!value) {
             var lineAfter = after.split('\n').shift(),
@@ -528,14 +550,23 @@
         var lineMatch = before.split('\n').pop().match(/^(\s+)/),
             lineMatchIndent = lineMatch && lineMatch[1] || "";
         that.match([patternBefore, /[\s\S]*/, patternAfter], function (before, value, after) {
+            console.log(after);
             // `<blockquote>…</blockquote>`
-            if (defaults.blockquote[0] === after[1] || defaults.blockquote[0] === after[2]) {
+            if (defaults.blockquote[0] === after[3]) {
                 that.replace(patternBefore, "", -1);
                 that.replace(patternAfter, "", 1);
                 that.pull(charIndent);
             } else {
                 // Check if selection contains block tag(s) or a line break
-                if (hasValue('\n', value[0]) || /<\/(figure|form|dl|h[1-6]|[ou]l|p(re)?|table)>/i.test(value[0])) {
+                var block,
+                    blocks = [],
+                    list = defaults.blocks;
+                for (block in list) {
+                    if (list[block]) {
+                        blocks.push(block);
+                    }
+                }
+                if (hasValue('\n', value[0]) || toPattern(tagEnd(blocks.join('|')), 'i').test(value[0])) {
                     that.wrap(lineMatchIndent + '<' + defaults.blockquote[0] + toAttributes(defaults.blockquote[2]) + '>\n', '\n' + lineMatchIndent + '</' + defaults.blockquote[0] + '>');
                     that.push(charIndent);
                 } else {

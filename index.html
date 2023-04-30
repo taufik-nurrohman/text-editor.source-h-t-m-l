@@ -109,13 +109,13 @@
         <li><code>&lt;p class="foo"&gt;asdf<mark></mark>&lt;/p&gt;</code> then press <kbd>↵</kbd>.</li>
         <li><code>&lt;p&gt;asdf<mark></mark>&lt;/p&gt;</code> then press <kbd>↵</kbd>.</li>
         <li>Press <kbd>⇧</kbd><kbd>↵</kbd> to insert a hard break.</li>
+        <li>Press <kbd>⎈</kbd><kbd>'</kbd> or <kbd>⎈</kbd><kbd>⇧</kbd><kbd>"</kbd>.</li>
         <li>Press <kbd>⎈</kbd><kbd>b</kbd>.</li>
         <li>Press <kbd>⎈</kbd><kbd>e</kbd>.</li>
         <li>Press <kbd>⎈</kbd><kbd>h</kbd>.</li>
         <li>Press <kbd>⎈</kbd><kbd>i</kbd>.</li>
         <li>Press <kbd>⎈</kbd><kbd>l</kbd>.</li>
         <li>Press <kbd>⎈</kbd><kbd>o</kbd>.</li>
-        <li>Press <kbd>⎈</kbd><kbd>q</kbd> or <kbd>⎈</kbd><kbd>⇧</kbd><kbd>Q</kbd>.</li>
         <li>Press <kbd>⎈</kbd><kbd>u</kbd>.</li>
         <li>Press <kbd>⎈</kbd><kbd>↵</kbd> to escape from the current line then start a paragraph below it.</li>
         <li>Press <kbd>⎈</kbd><kbd>⇧</kbd><kbd>↵</kbd> to escape from the current line then start a paragraph above it.</li>
@@ -141,14 +141,14 @@
 
   Object.assign(map.commands, TE.SourceHTML.commands);
 
+  map.keys["Control-'"] = 'quote';
+  map.keys['Control-Shift-"'] = 'quote';
   map.keys['Control-b'] = 'bold';
   map.keys['Control-e'] = 'code';
   map.keys['Control-h'] = 'blocks';
   map.keys['Control-i'] = 'italic';
   map.keys['Control-l'] = 'link';
   map.keys['Control-o'] = 'image';
-  map.keys['Control-q'] = 'quote';
-  map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
   map.keys['Control-u'] = 'underline';
 
   const {
@@ -267,14 +267,14 @@ const bounce = debounce(() => map.pull(), 1000);
 
 Object.assign(map.commands, commandsSourceHTML);
 
+map.keys["Control-'"] = 'quote';
+map.keys['Control-Shift-"'] = 'quote';
 map.keys['Control-b'] = 'bold';
 map.keys['Control-e'] = 'code';
 map.keys['Control-h'] = 'blocks';
 map.keys['Control-i'] = 'italic';
 map.keys['Control-l'] = 'link';
 map.keys['Control-o'] = 'image';
-map.keys['Control-q'] = 'quote';
-map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
 map.keys['Control-u'] = 'underline';
 
 editor.state = fromStates({}, editor.state, stateSource, stateSourceXML, stateSourceHTML, {
@@ -369,14 +369,14 @@ const bounce = debounce(() => map.pull(), 1000);
 
 Object.assign(map.commands, commandsSourceHTML);
 
+map.keys["Control-'"] = 'quote';
+map.keys['Control-Shift-"'] = 'quote';
 map.keys['Control-b'] = 'bold';
 map.keys['Control-e'] = 'code';
 map.keys['Control-h'] = 'blocks';
 map.keys['Control-i'] = 'italic';
 map.keys['Control-l'] = 'link';
 map.keys['Control-o'] = 'image';
-map.keys['Control-q'] = 'quote';
-map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
 map.keys['Control-u'] = 'underline';
 
 editor.state = fromStates({}, editor.state, stateSource, stateSourceXML, stateSourceHTML, {
@@ -469,14 +469,14 @@ editor.record(); // Record the first history data!</code></pre>
               commands: commandsSourceHTML
           } = TE.SourceHTML;
       Object.assign(map.commands, commandsSourceHTML);
-      map.keys['Control-Shift-Q'] = 'quote'; // Use `Control-Shift-Q` if `Control-q` closes the window
+      map.keys["Control-'"] = 'quote';
+      map.keys['Control-Shift-"'] = 'quote';
       map.keys['Control-b'] = 'bold';
       map.keys['Control-e'] = 'code';
       map.keys['Control-h'] = 'blocks';
       map.keys['Control-i'] = 'italic';
       map.keys['Control-l'] = 'link';
       map.keys['Control-o'] = 'image';
-      map.keys['Control-q'] = 'quote';
       map.keys['Control-u'] = 'underline';
       editor.state = Object.assign({}, editor.state, TE.Source.state, TE.SourceXML.state, TE.SourceHTML.state);
       editor.state.source = Object.assign({}, editor.state.source, TE.Source.state.source, TE.SourceXML.state.source, TE.SourceHTML.state.source, {
