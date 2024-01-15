@@ -5,7 +5,6 @@
   "dependencies": {
     "@taufik-nurrohman/from": "*",
     "@taufik-nurrohman/has": "*",
-    "@taufik-nurrohman/key": "*",
     "@taufik-nurrohman/pattern": "*",
     "@taufik-nurrohman/text-editor": "*",
     "@taufik-nurrohman/text-editor.history": "*",
