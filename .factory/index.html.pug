@@ -66,7 +66,9 @@ block content
         'width': '100%'
       })
     p(role='group')
-      button TODO
+      button(onclick='return editor.insertLink(), false;') Insert Link
+      = ' '
+      button(onclick='return editor.insertImage(), false;') Insert Image
     h2 Strokes
     ul
       li <code>&lt;h1&gt;asdf<mark></mark>&lt;/h1&gt;</code> then press <kbd>Enter</kbd>.
@@ -184,7 +186,9 @@ block content
       | editor.insertLink('URL:', 'http://', function (value) {
       |     console.log(value);
       | });
-    h4: code editor.toggleElements(of, then)
+    h4: code editor.toggleElementBlock(open, close, wrap)
+    h4: code editor.toggleElementBlock(of, wrap)
+    h4: code editor.toggleElements(of, wrap)
     p Toggle elements in the list.
   footer
     hr

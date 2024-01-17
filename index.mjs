@@ -27,58 +27,58 @@ const blocks = {
 };
 
 const elements = {
-    "": ["", 'text goes here…', {}],
-    a: ['a', 'link text goes here…', {}],
-    area: ['area', false, {}],
-    b: ['strong', 'text goes here…', {}],
+    "": ["", 'text goes here…'],
+    a: ['a', 'link text goes here…', {href: ""}],
+    area: ['area', false],
+    b: ['strong', 'text goes here…'],
     base: ['base', false, {href: ""}],
-    blockquote: ['blockquote', 'quote goes here…', {}],
-    br: ['br', false, {}],
+    blockquote: ['blockquote', 'quote goes here…'],
+    br: ['br', false],
     button: ['button', 'text goes here…', {name: "", type: 'submit'}],
-    caption: ['caption', 'table caption goes here…', {}],
-    code: ['code', 'code goes here…', {}],
-    col: ['col', false, {}],
-    dd: ['dd', 'data goes here…', {}],
-    dl: ['dl', "", {}],
-    dt: ['dt', 'title goes here…', {}],
-    em: ['em', 'text goes here…', {}],
-    figcaption: ['figcaption', 'image caption goes here…', {}],
-    figure: ['figure', "", {}],
-    h1: ['h1', 'title goes here…', {}],
-    h2: ['h2', 'title goes here…', {}],
-    h3: ['h3', 'title goes here…', {}],
-    h4: ['h4', 'title goes here…', {}],
-    h5: ['h5', 'title goes here…', {}],
-    h6: ['h6', 'title goes here…', {}],
-    hr: ['hr', false, {}],
-    i: ['em', 'text goes here…', {}],
+    caption: ['caption', 'table caption goes here…'],
+    code: ['code', 'code goes here…'],
+    col: ['col', false],
+    dd: ['dd', 'data goes here…'],
+    dl: ['dl', ""],
+    dt: ['dt', 'title goes here…'],
+    em: ['em', 'text goes here…'],
+    figcaption: ['figcaption', 'image caption goes here…'],
+    figure: ['figure', ""],
+    h1: ['h1', 'title goes here…'],
+    h2: ['h2', 'title goes here…'],
+    h3: ['h3', 'title goes here…'],
+    h4: ['h4', 'title goes here…'],
+    h5: ['h5', 'title goes here…'],
+    h6: ['h6', 'title goes here…'],
+    hr: ['hr', false],
+    i: ['em', 'text goes here…'],
     img: ['img', false, {alt: "", src: ""}],
     input: ['input', false, {name: "", type: 'text'}],
-    li: ['li', 'list item goes here…', {}],
+    li: ['li', 'list item goes here…'],
     link: ['link', false, {href: ""}],
-    meta: ['meta', false, {}],
-    ol: ['ol', "", {}],
-    option: ['option', 'option goes here…', {}],
-    p: ['p', 'paragraph goes here…', {}],
+    meta: ['meta', false],
+    ol: ['ol', ""],
+    option: ['option', 'option goes here…'],
+    p: ['p', 'paragraph goes here…'],
     param: ['param', false, {name: ""}],
-    pre: ['pre', 'text goes here…', {}],
-    q: ['q', 'quote goes here…', {}],
-    script: ['script', 'code goes here…', {}],
+    pre: ['pre', 'text goes here…'],
+    q: ['q', 'quote goes here…'],
+    script: ['script', 'code goes here…'],
     select: ['select', "", {name: ""}],
     source: ['source', false, {src: ""}],
-    strong: ['strong', 'text goes here…', {}],
-    style: ['style', 'code goes here…', {}],
-    tbody: ['tbody', "", {}],
-    td: ['td', 'data goes here…', {}],
+    strong: ['strong', 'text goes here…'],
+    style: ['style', 'code goes here…'],
+    tbody: ['tbody', ""],
+    td: ['td', 'data goes here…'],
     textarea: ['textarea', 'value goes here…', {name: ""}],
-    tfoot: ['tfoot', "", {}],
-    th: ['th', 'title goes here…', {}],
-    thead: ['thead', "", {}],
-    tr: ['tr', "", {}],
-    track: ['track', false, {}],
-    u: ['u', 'text goes here…', {}],
-    ul: ['ul', "", {}],
-    wbr: ['wbr', false, {}]
+    tfoot: ['tfoot', ""],
+    th: ['th', 'title goes here…'],
+    thead: ['thead', ""],
+    tr: ['tr', ""],
+    track: ['track', false],
+    u: ['u', 'text goes here…'],
+    ul: ['ul', ""],
+    wbr: ['wbr', false]
 };
 
 let tagComment = () => '<!--([\\s\\S](?!-->)*)-->',
@@ -107,11 +107,61 @@ function onKeyDown(e) {
 }
 
 function attach() {
-
+    let $ = this, m;
+    $.state = fromStates({
+        elements
+    }, $.state);
+    $.insertImage = (hint, value, then) => {
+        return $.prompt(hint ?? 'URL:', value ?? (theLocation.protocol + '//'), value => {
+            if (!value) {
+                return $;
+            }
+            let alt = $.$().value,
+                element = $.state.elements.img ?? [];
+            element[0] = element[0] ?? 'img';
+            element[1] = element[1] ?? "";
+            element[2] = fromStates({}, element[2] || {});
+            element[2].alt = alt || (element[2].alt ?? "");
+            element[2].src = value;
+            $.record().insertElement(element).record();
+            isFunction(then) && then.call($, value);
+        });
+    };
+    $.insertLink = (hint, value, then) => {
+        return $.prompt(hint ?? 'URL:', value ?? (theLocation.protocol + '//'), value => {
+            if (!value) {
+                return $;
+            }
+            let element = $.state.elements.a ?? [];
+            element[0] = element[0] ?? 'a';
+            element[1] = element[1] ?? "";
+            element[2] = fromStates({}, element[2] || {});
+            element[2].href = value;
+            $.record().wrapElement(element).record();
+            isFunction(then) && then.call($, value);
+        });
+    };
+    $.toggleElementBlock = (open, close, wrap) => {
+        if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
+            open = [m[1]];
+        }
+        let {after, before, value} = $.$();
+        if (
+            !wrap && (!toPattern(tagStart(open[0]) + '$', "").test(before) && !toPattern('^' + tagEnd(open[0]), "").test(after)) ||
+            wrap && (!toPattern('^' + tagStart(open[0]) + '[\\s\\S]*?' + tagEnd(open[0]) + '$', "").test(value))
+        ) {
+            $.trim('\n', '\n');
+        }
+        return $.toggleElement(open, close, wrap);
+    };
+    if ('HTML' === $.state.source?.type) {
+        $.on('key.down', onKeyDown);
+    }
+    return $;
 }
 
 function detach() {
-
+    return this.off('key.down', onKeyDown);
 }
 
 export default {attach, detach};

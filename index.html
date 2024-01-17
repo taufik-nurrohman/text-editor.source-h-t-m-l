@@ -27,7 +27,7 @@
     <main>
       <p><label><input checked onchange="return editor[this.checked ? 'attach' : 'detach'](), false;" type="checkbox"> <span>Enable <abbr title="Hyper Text Markup Language">HTML</abbr> Source Editor</span></label></p>
       <p><textarea placeholder="Code goes here&hellip;" spellcheck="false" style="display:block;width:100%;"></textarea></p>
-      <p role="group"><button>TODO</button></p>
+      <p role="group"><button onclick="return editor.insertLink(), false;">Insert Link</button> <button onclick="return editor.insertImage(), false;">Insert Image</button></p>
       <h2>Strokes</h2>
       <ul>
         <li><code>&lt;h1&gt;asdf<mark></mark>&lt;/h1&gt;</code> then press <kbd>Enter</kbd>.</li>
@@ -143,7 +143,9 @@
       <pre><code>editor.insertLink('URL:', 'http://', function (value) {
     console.log(value);
 });</code></pre>
-      <h4><code>editor.toggleElements(of, then)</code></h4>
+      <h4><code>editor.toggleElementBlock(open, close, wrap)</code></h4>
+      <h4><code>editor.toggleElementBlock(of, wrap)</code></h4>
+      <h4><code>editor.toggleElements(of, wrap)</code></h4>
       <p>Toggle elements in the list.</p>
     </main>
     <footer>
