@@ -109,7 +109,6 @@ function onKeyDown(e) {
             $.select(end + toCount(m[0])).toggleElementBlock(['p']);
             return;
         }
-        console.log(m);
         return;
     }
 }
@@ -119,7 +118,7 @@ function attach() {
     $.state = fromStates({
         elements
     }, $.state);
-    $.insertElementBlock = (open, close, wrap) => {
+    $.insertElementBlock = (value, mode, clear) => {
 
     };
     $.insertImage = (hint, value, then) => {
@@ -153,9 +152,18 @@ function attach() {
         });
     };
     $.peelElementBlock = (open, close, wrap) => {
-
+        return $.peelElement(open, close, wrap).trim("", "", false, false);
     };
     $.toggleElementBlock = (open, close, wrap) => {
+        let {after, before, value} = $.$();
+        if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
+            open = [m[1]];
+        }
+        if (wrap) {
+            return $[(toPattern('^' + tagStart(open[0]) + '[\\s\\S]*?' + tagEnd(open[0]) + '$', "").test(value) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
+        }
+        return $[(toPattern('^' + tagEnd(open[0]), "").test(after) && toPattern(tagStart(open[0]) + '$', "").test(before) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
+        /*
         if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
             open = [m[1]];
         }
@@ -167,20 +175,24 @@ function attach() {
             $.trim('\n', '\n');
         }
         return $.toggleElement(open, close, wrap);
+        */
     };
     $.wrapElementBlock = (open, close, wrap) => {
         let {after, before, value} = $.$(),
-            m = toPattern(tagStart(tagName()) + '$', "").exec(before),
-            t = $.state.source?.tab || $.state.tab || '\t',
+            charIndent = $.state.source?.tab || $.state.tab || '\t',
             lineMatch = /^(\s+)/.exec(before.split('\n').pop()),
-            lineMatchIndent = lineMatch && lineMatch[1] || "";
-        if (isInteger(t)) {
-            t = ' '.repeat(t);
+            lineMatchIndent = lineMatch && lineMatch[1] || "",
+            tagStartMatch = toPattern(tagStart(tagName()) + '$', "").exec(before.trim());
+        if (isInteger(charIndent)) {
+            charIndent = ' '.repeat(charIndent);
         }
-        if (m && after.startsWith('</' + m[1] + '>')) {
-            $.wrap('\n' + lineMatchIndent + t, '\n' + lineMatchIndent);
+        if (tagStartMatch && after.trim().startsWith('</' + tagStartMatch[1] + '>')) {
+            $.trim("", "", false, false); // Collapse the tag, then get the correct indentation of it
+            lineMatch = /^(\s+)/.exec($.$().before.split('\n').pop());
+            lineMatchIndent = lineMatch && lineMatch[1] || "";
+            $.wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent);
         } else {
-            $.trim().wrap('\n' + lineMatchIndent, '\n' + lineMatchIndent);
+            $.trim('\n' + lineMatchIndent, '\n' + lineMatchIndent);
         }
         return $.wrapElement(open, close, wrap);
     };

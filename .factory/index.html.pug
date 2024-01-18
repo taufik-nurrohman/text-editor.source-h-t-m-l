@@ -29,9 +29,6 @@ block script
     |         'Control-y': 'redo',
     |         'Control-z': 'undo'
     |     },
-    |     source: {
-    |         type: 'HTML'
-    |     },
     |     tab: 2,
     |     with: [TextEditor.History, TextEditor.Key, TextEditor.SourceHTML, TextEditor.SourceXML, TextEditor.Source]
     | });
@@ -159,9 +156,6 @@ block content
       |           'Control-y': 'redo',
       |           'Control-z': 'undo'
       |       },
-      |       source: {
-      |           type: 'HTML' // Set the current editor type as `HTML`
-      |       },
       |       tab: 2,
       |       // Be sure to put `TextEditor.SourceHTML` before `TextEditor.SourceXML`
       |       with: [TextEditor.History, TextEditor.Key, TextEditor.SourceHTML, TextEditor.SourceXML, TextEditor.Source]
@@ -186,8 +180,14 @@ block content
       | editor.insertLink('URL:', 'http://', function (value) {
       |     console.log(value);
       | });
-    h4: code editor.toggleElementBlock(open, close, wrap)
+    h4: code editor.insertElementBlock(value, mode = -1, clear = true)
+    h4: code editor.insertElementBlock(of, mode = -1, clear = true)
+    h4: code editor.peelElementBlock(of, wrap)
     h4: code editor.toggleElementBlock(of, wrap)
+    h4: code editor.peelElementBlock(open, close, wrap)
+    h4: code editor.toggleElementBlock(open, close, wrap)
+    h4: code editor.wrapElementBlock(open, close, wrap)
+    h4: code editor.wrapElementBlock(of, wrap)
     h4: code editor.toggleElements(of, wrap)
     p Toggle elements in the list.
   footer

@@ -118,9 +118,6 @@
           'Control-y': 'redo',
           'Control-z': 'undo'
       },
-      source: {
-          type: 'HTML' // Set the current editor type as `HTML`
-      },
       tab: 2,
       // Be sure to put `TextEditor.SourceHTML` before `TextEditor.SourceXML`
       with: [TextEditor.History, TextEditor.Key, TextEditor.SourceHTML, TextEditor.SourceXML, TextEditor.Source]
@@ -143,8 +140,14 @@
       <pre><code>editor.insertLink('URL:', 'http://', function (value) {
     console.log(value);
 });</code></pre>
-      <h4><code>editor.toggleElementBlock(open, close, wrap)</code></h4>
+      <h4><code>editor.insertElementBlock(value, mode = -1, clear = true)</code></h4>
+      <h4><code>editor.insertElementBlock(of, mode = -1, clear = true)</code></h4>
+      <h4><code>editor.peelElementBlock(of, wrap)</code></h4>
       <h4><code>editor.toggleElementBlock(of, wrap)</code></h4>
+      <h4><code>editor.peelElementBlock(open, close, wrap)</code></h4>
+      <h4><code>editor.toggleElementBlock(open, close, wrap)</code></h4>
+      <h4><code>editor.wrapElementBlock(open, close, wrap)</code></h4>
+      <h4><code>editor.wrapElementBlock(of, wrap)</code></h4>
       <h4><code>editor.toggleElements(of, wrap)</code></h4>
       <p>Toggle elements in the list.</p>
     </main>
@@ -180,9 +183,6 @@
               'Control-]': 'push',
               'Control-y': 'redo',
               'Control-z': 'undo'
-          },
-          source: {
-              type: 'HTML'
           },
           tab: 2,
           with: [TextEditor.History, TextEditor.Key, TextEditor.SourceHTML, TextEditor.SourceXML, TextEditor.Source]

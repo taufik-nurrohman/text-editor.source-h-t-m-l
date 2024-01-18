@@ -224,7 +224,6 @@
                 $.select(end + toCount(m[0])).toggleElementBlock(['p']);
                 return;
             }
-            console.log(m);
             return;
         }
     }
@@ -235,7 +234,7 @@
         $.state = fromStates({
             elements: elements
         }, $.state);
-        $.insertElementBlock = function (open, close, wrap) {};
+        $.insertElementBlock = function (value, mode, clear) {};
         $.insertImage = function (hint, value, then) {
             return $.prompt(hint != null ? hint : 'URL:', value != null ? value : theLocation.protocol + '//', function (value) {
                 var _$$state$elements$img, _element$, _element$2, _element$2$alt;
@@ -268,19 +267,34 @@
                 isFunction(then) && then.call($, value);
             });
         };
-        $.peelElementBlock = function (open, close, wrap) {};
+        $.peelElementBlock = function (open, close, wrap) {
+            return $.peelElement(open, close, wrap).trim("", "", false, false);
+        };
         $.toggleElementBlock = function (open, close, wrap) {
-            if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
-                open = [m[1]];
-            }
             var _$$$2 = $.$(),
                 after = _$$$2.after,
                 before = _$$$2.before,
                 value = _$$$2.value;
-            if (!wrap && !toPattern(tagStart(open[0]) + '$', "").test(before) && !toPattern('^' + tagEnd(open[0]), "").test(after) || wrap && !toPattern('^' + tagStart(open[0]) + '[\\s\\S]*?' + tagEnd(open[0]) + '$', "").test(value)) {
+            if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
+                open = [m[1]];
+            }
+            if (wrap) {
+                return $[(toPattern('^' + tagStart(open[0]) + '[\\s\\S]*?' + tagEnd(open[0]) + '$', "").test(value) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
+            }
+            return $[(toPattern('^' + tagEnd(open[0]), "").test(after) && toPattern(tagStart(open[0]) + '$', "").test(before) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
+            /*
+            if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
+                open = [m[1]];
+            }
+            let {after, before, value} = $.$();
+            if (
+                !wrap && (!toPattern(tagStart(open[0]) + '$', "").test(before) && !toPattern('^' + tagEnd(open[0]), "").test(after)) ||
+                wrap && (!toPattern('^' + tagStart(open[0]) + '[\\s\\S]*?' + tagEnd(open[0]) + '$', "").test(value))
+            ) {
                 $.trim('\n', '\n');
             }
             return $.toggleElement(open, close, wrap);
+            */
         };
         $.wrapElementBlock = function (open, close, wrap) {
             var _$$state$source;
@@ -288,17 +302,20 @@
                 after = _$$$3.after,
                 before = _$$$3.before;
             _$$$3.value;
-            var m = toPattern(tagStart(tagName()) + '$', "").exec(before),
-                t = ((_$$state$source = $.state.source) == null ? void 0 : _$$state$source.tab) || $.state.tab || '\t',
+            var charIndent = ((_$$state$source = $.state.source) == null ? void 0 : _$$state$source.tab) || $.state.tab || '\t',
                 lineMatch = /^(\s+)/.exec(before.split('\n').pop()),
-                lineMatchIndent = lineMatch && lineMatch[1] || "";
-            if (isInteger(t)) {
-                t = ' '.repeat(t);
+                lineMatchIndent = lineMatch && lineMatch[1] || "",
+                tagStartMatch = toPattern(tagStart(tagName()) + '$', "").exec(before.trim());
+            if (isInteger(charIndent)) {
+                charIndent = ' '.repeat(charIndent);
             }
-            if (m && after.startsWith('</' + m[1] + '>')) {
-                $.wrap('\n' + lineMatchIndent + t, '\n' + lineMatchIndent);
+            if (tagStartMatch && after.trim().startsWith('</' + tagStartMatch[1] + '>')) {
+                $.trim("", "", false, false); // Collapse the tag, then get the correct indentation of it
+                lineMatch = /^(\s+)/.exec($.$().before.split('\n').pop());
+                lineMatchIndent = lineMatch && lineMatch[1] || "";
+                $.wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent);
             } else {
-                $.trim().wrap('\n' + lineMatchIndent, '\n' + lineMatchIndent);
+                $.trim('\n' + lineMatchIndent, '\n' + lineMatchIndent);
             }
             return $.wrapElement(open, close, wrap);
         };
