@@ -2,7 +2,7 @@ import {W, theLocation} from '@taufik-nurrohman/document';
 import {esc, toPattern} from '@taufik-nurrohman/pattern';
 import {fromHTML, fromStates, fromValue} from '@taufik-nurrohman/from';
 import {hasValue} from '@taufik-nurrohman/has';
-import {isArray, isFunction, isSet, isString} from '@taufik-nurrohman/is';
+import {isArray, isFunction, isInteger, isSet, isString} from '@taufik-nurrohman/is';
 import {offEventDefault} from '@taufik-nurrohman/event';
 import {that, toAttributes} from '@taufik-nurrohman/text-editor.source-x-m-l';
 import {toCount, toHTML, toObjectKeys} from '@taufik-nurrohman/to';
@@ -169,7 +169,20 @@ function attach() {
         return $.toggleElement(open, close, wrap);
     };
     $.wrapElementBlock = (open, close, wrap) => {
-
+        let {after, before, value} = $.$(),
+            m = toPattern(tagStart(tagName()) + '$', "").exec(before),
+            t = $.state.source?.tab || $.state.tab || '\t',
+            lineMatch = /^(\s+)/.exec(before.split('\n').pop()),
+            lineMatchIndent = lineMatch && lineMatch[1] || "";
+        if (isInteger(t)) {
+            t = ' '.repeat(t);
+        }
+        if (m && after.startsWith('</' + m[1] + '>')) {
+            $.wrap('\n' + lineMatchIndent + t, '\n' + lineMatchIndent);
+        } else {
+            $.trim().wrap('\n' + lineMatchIndent, '\n' + lineMatchIndent);
+        }
+        return $.wrapElement(open, close, wrap);
     };
     return $.on('key.down', onKeyDown);
 }

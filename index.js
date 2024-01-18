@@ -42,8 +42,14 @@
     var isInstance = function isInstance(x, of) {
         return x && isSet(of) && x instanceof of ;
     };
+    var isInteger = function isInteger(x) {
+        return isNumber(x) && 0 === x % 1;
+    };
     var isNull = function isNull(x) {
         return null === x;
+    };
+    var isNumber = function isNumber(x) {
+        return 'number' === typeof x;
     };
     var isObject = function isObject(x, isPlain) {
         if (isPlain === void 0) {
@@ -276,7 +282,26 @@
             }
             return $.toggleElement(open, close, wrap);
         };
-        $.wrapElementBlock = function (open, close, wrap) {};
+        $.wrapElementBlock = function (open, close, wrap) {
+            var _$$state$source;
+            var _$$$3 = $.$(),
+                after = _$$$3.after,
+                before = _$$$3.before;
+            _$$$3.value;
+            var m = toPattern(tagStart(tagName()) + '$', "").exec(before),
+                t = ((_$$state$source = $.state.source) == null ? void 0 : _$$state$source.tab) || $.state.tab || '\t',
+                lineMatch = /^(\s+)/.exec(before.split('\n').pop()),
+                lineMatchIndent = lineMatch && lineMatch[1] || "";
+            if (isInteger(t)) {
+                t = ' '.repeat(t);
+            }
+            if (m && after.startsWith('</' + m[1] + '>')) {
+                $.wrap('\n' + lineMatchIndent + t, '\n' + lineMatchIndent);
+            } else {
+                $.trim().wrap('\n' + lineMatchIndent, '\n' + lineMatchIndent);
+            }
+            return $.wrapElement(open, close, wrap);
+        };
         return $.on('key.down', onKeyDown);
     }
 
