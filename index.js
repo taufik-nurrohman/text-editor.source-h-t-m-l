@@ -108,6 +108,9 @@
         pattern = pattern.replace(/\//g, '\\/');
         return new RegExp(pattern, isSet(opt) ? opt : 'g');
     };
+    var offEventDefault = function offEventDefault(e) {
+        return e && e.preventDefault();
+    };
     var elements = {
         "": ["", 'text goes here…'],
         a: ['a', 'link text goes here…', {
@@ -196,24 +199,37 @@
         };
 
     function onKeyDown(e) {
-        var $ = this;
+        var $ = this,
+            m;
         $.k(false).pop();
         var keys = $.k();
-        if (!$ || e.defaultPrevented) {
+        if (e.defaultPrevented || $.keys[keys]) {
             return;
         }
-        if ($.keys[keys]) {
+        var _$$$ = $.$(),
+            after = _$$$.after;
+        _$$$.before;
+        var end = _$$$.end;
+        _$$$.start;
+        _$$$.value;
+        if ('Enter' === keys) {
+            if (m = toPattern('^' + tagEnd('h[1-6]|p')).exec(after)) {
+                offEventDefault(e);
+                $.select(end + toCount(m[0])).toggleElementBlock(['p']);
+                return;
+            }
+            console.log(m);
             return;
         }
     }
 
     function attach() {
-        var _$$state$source;
         var $ = this,
             m;
         $.state = fromStates({
             elements: elements
         }, $.state);
+        $.insertElementBlock = function (open, close, wrap) {};
         $.insertImage = function (hint, value, then) {
             return $.prompt(hint != null ? hint : 'URL:', value != null ? value : theLocation.protocol + '//', function (value) {
                 var _$$state$elements$img, _element$, _element$2, _element$2$alt;
@@ -246,23 +262,22 @@
                 isFunction(then) && then.call($, value);
             });
         };
+        $.peelElementBlock = function (open, close, wrap) {};
         $.toggleElementBlock = function (open, close, wrap) {
             if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
                 open = [m[1]];
             }
-            var _$$$ = $.$(),
-                after = _$$$.after,
-                before = _$$$.before,
-                value = _$$$.value;
+            var _$$$2 = $.$(),
+                after = _$$$2.after,
+                before = _$$$2.before,
+                value = _$$$2.value;
             if (!wrap && !toPattern(tagStart(open[0]) + '$', "").test(before) && !toPattern('^' + tagEnd(open[0]), "").test(after) || wrap && !toPattern('^' + tagStart(open[0]) + '[\\s\\S]*?' + tagEnd(open[0]) + '$', "").test(value)) {
                 $.trim('\n', '\n');
             }
             return $.toggleElement(open, close, wrap);
         };
-        if ('HTML' === ((_$$state$source = $.state.source) == null ? void 0 : _$$state$source.type)) {
-            $.on('key.down', onKeyDown);
-        }
-        return $;
+        $.wrapElementBlock = function (open, close, wrap) {};
+        return $.on('key.down', onKeyDown);
     }
 
     function detach() {

@@ -3,6 +3,7 @@ import {esc, toPattern} from '@taufik-nurrohman/pattern';
 import {fromHTML, fromStates, fromValue} from '@taufik-nurrohman/from';
 import {hasValue} from '@taufik-nurrohman/has';
 import {isArray, isFunction, isSet, isString} from '@taufik-nurrohman/is';
+import {offEventDefault} from '@taufik-nurrohman/event';
 import {that, toAttributes} from '@taufik-nurrohman/text-editor.source-x-m-l';
 import {toCount, toHTML, toObjectKeys} from '@taufik-nurrohman/to';
 
@@ -95,13 +96,20 @@ function isBlock(before, value, after) {
 }
 
 function onKeyDown(e) {
-    let $ = this,
+    let $ = this, m,
         key = $.k(false).pop(),
         keys = $.k();
-    if (!$ || e.defaultPrevented) {
+    if (e.defaultPrevented || $.keys[keys]) {
         return;
     }
-    if ($.keys[keys]) {
+    let {after, before, end, start, value} = $.$();
+    if ('Enter' === keys) {
+        if (m = toPattern('^' + tagEnd('h[1-6]|p')).exec(after)) {
+            offEventDefault(e);
+            $.select(end + toCount(m[0])).toggleElementBlock(['p']);
+            return;
+        }
+        console.log(m);
         return;
     }
 }
@@ -111,6 +119,9 @@ function attach() {
     $.state = fromStates({
         elements
     }, $.state);
+    $.insertElementBlock = (open, close, wrap) => {
+
+    };
     $.insertImage = (hint, value, then) => {
         return $.prompt(hint ?? 'URL:', value ?? (theLocation.protocol + '//'), value => {
             if (!value) {
@@ -141,6 +152,9 @@ function attach() {
             isFunction(then) && then.call($, value);
         });
     };
+    $.peelElementBlock = (open, close, wrap) => {
+
+    };
     $.toggleElementBlock = (open, close, wrap) => {
         if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
             open = [m[1]];
@@ -154,10 +168,10 @@ function attach() {
         }
         return $.toggleElement(open, close, wrap);
     };
-    if ('HTML' === $.state.source?.type) {
-        $.on('key.down', onKeyDown);
-    }
-    return $;
+    $.wrapElementBlock = (open, close, wrap) => {
+
+    };
+    return $.on('key.down', onKeyDown);
 }
 
 function detach() {
