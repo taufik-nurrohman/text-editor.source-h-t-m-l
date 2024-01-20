@@ -213,16 +213,25 @@
             return;
         }
         var _$$$ = $.$(),
-            after = _$$$.after;
-        _$$$.before;
-        var end = _$$$.end;
+            after = _$$$.after,
+            before = _$$$.before,
+            end = _$$$.end;
         _$$$.start;
         _$$$.value;
+        var lineMatch = /^(\s+)/.exec(before.split('\n').pop()),
+            lineMatchIndent = lineMatch && lineMatch[1] || "";
         if ('Enter' === keys) {
             if (m = toPattern('^' + tagEnd('h[1-6]|p')).exec(after)) {
                 offEventDefault(e);
-                $.select(end + toCount(m[0])).toggleElementBlock(['p']);
-                return;
+                return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock(['p']);
+            }
+            if (m = toPattern('^' + tagEnd('dt')).exec(after)) {
+                offEventDefault(e);
+                return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock(['dd']);
+            }
+            if (m = toPattern('^' + tagEnd('dd|li')).exec(after)) {
+                offEventDefault(e);
+                return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock([m[1]]);
             }
             return;
         }
@@ -234,7 +243,28 @@
         $.state = fromStates({
             elements: elements
         }, $.state);
-        $.insertElementBlock = function (value, mode, clear) {};
+        $.insertElementBlock = function (value, mode, clear) {
+            if (!isSet(mode)) {
+                mode = -1;
+            }
+            if (!isSet(clear)) {
+                clear = true;
+            }
+            var _$$$2 = $.$(),
+                after = _$$$2.after,
+                before = _$$$2.before,
+                end = _$$$2.end,
+                start = _$$$2.start,
+                afterCount = toCount(after.split('\n').shift()),
+                beforeCount = toCount(before.split('\n').pop());
+            if (1 === mode) {
+                return $.select(end + afterCount).insertElement(value, mode).insert('\n', 1);
+            }
+            if (-1 === mode) {
+                return $.select(start - beforeCount).insertElement(value, mode).insert('\n', -1);
+            }
+            return $.select(start - beforeCount, end + afterCount).trim('\n', '\n').insertElement(value, mode, clear);
+        };
         $.insertImage = function (hint, value, then) {
             return $.prompt(hint != null ? hint : 'URL:', value != null ? value : theLocation.protocol + '//', function (value) {
                 var _$$state$elements$img, _element$, _element$2, _element$2$alt;
@@ -271,10 +301,10 @@
             return $.peelElement(open, close, wrap).trim("", "", false, false);
         };
         $.toggleElementBlock = function (open, close, wrap) {
-            var _$$$2 = $.$(),
-                after = _$$$2.after,
-                before = _$$$2.before,
-                value = _$$$2.value;
+            var _$$$3 = $.$(),
+                after = _$$$3.after,
+                before = _$$$3.before,
+                value = _$$$3.value;
             if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
                 open = [m[1]];
             }
@@ -282,26 +312,13 @@
                 return $[(toPattern('^' + tagStart(open[0]) + '[\\s\\S]*?' + tagEnd(open[0]) + '$', "").test(value) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
             }
             return $[(toPattern('^' + tagEnd(open[0]), "").test(after) && toPattern(tagStart(open[0]) + '$', "").test(before) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
-            /*
-            if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
-                open = [m[1]];
-            }
-            let {after, before, value} = $.$();
-            if (
-                !wrap && (!toPattern(tagStart(open[0]) + '$', "").test(before) && !toPattern('^' + tagEnd(open[0]), "").test(after)) ||
-                wrap && (!toPattern('^' + tagStart(open[0]) + '[\\s\\S]*?' + tagEnd(open[0]) + '$', "").test(value))
-            ) {
-                $.trim('\n', '\n');
-            }
-            return $.toggleElement(open, close, wrap);
-            */
         };
         $.wrapElementBlock = function (open, close, wrap) {
             var _$$state$source;
-            var _$$$3 = $.$(),
-                after = _$$$3.after,
-                before = _$$$3.before;
-            _$$$3.value;
+            var _$$$4 = $.$(),
+                after = _$$$4.after,
+                before = _$$$4.before;
+            _$$$4.value;
             var charIndent = ((_$$state$source = $.state.source) == null ? void 0 : _$$state$source.tab) || $.state.tab || '\t',
                 lineMatch = /^(\s+)/.exec(before.split('\n').pop()),
                 lineMatchIndent = lineMatch && lineMatch[1] || "",
@@ -314,8 +331,6 @@
                 lineMatch = /^(\s+)/.exec($.$().before.split('\n').pop());
                 lineMatchIndent = lineMatch && lineMatch[1] || "";
                 $.wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent);
-            } else {
-                $.trim('\n' + lineMatchIndent, '\n' + lineMatchIndent);
             }
             return $.wrapElement(open, close, wrap);
         };
