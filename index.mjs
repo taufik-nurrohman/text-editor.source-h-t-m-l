@@ -112,11 +112,11 @@ function onKeyDown(e) {
     }
     if ('Control-Shift-Enter' === keys) {
         offEventDefault(e);
-        return;
+        return $.insertBlock("", -1).toggleElementBlock(['p']);
     }
     if ('Control-Enter' === keys) {
         offEventDefault(e);
-        return;
+        return $.insertBlock("", 1).toggleElementBlock(['p']);
     }
     if ('Enter' === keys) {
         if (m = toPattern('^' + tagEnd('h[1-6]|p')).exec(after)) {
