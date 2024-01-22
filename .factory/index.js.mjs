@@ -105,8 +105,8 @@ function onKeyDown(e) {
     let {after, before, end, start, value} = $.$(),
         charIndent = $.state.source?.tab || $.state.tab || '\t',
         elements = $.state.elements || {},
-        lineMatch = /^(\s+)/.exec(before.split('\n').pop()),
-        lineMatchIndent = lineMatch && lineMatch[1] || "";
+        lineMatch = /^\s+/.exec(before.split('\n').pop()),
+        lineMatchIndent = lineMatch && lineMatch[0] || "";
     if (isInteger(charIndent)) {
         charIndent = ' '.repeat(charIndent);
     }
@@ -213,16 +213,16 @@ function attach() {
     $.wrapElementBlock = (open, close, wrap) => {
         let {after, before, value} = $.$(),
             charIndent = $.state.source?.tab || $.state.tab || '\t',
-            lineMatch = /^(\s+)/.exec(before.split('\n').pop()),
-            lineMatchIndent = lineMatch && lineMatch[1] || "",
+            lineMatch = /^\s+/.exec(before.split('\n').pop()),
+            lineMatchIndent = lineMatch && lineMatch[0] || "",
             tagStartMatch = toPattern(tagStart(tagName()) + '$', "").exec(before.trim());
         if (isInteger(charIndent)) {
             charIndent = ' '.repeat(charIndent);
         }
         if (tagStartMatch && after.trim().startsWith('</' + tagStartMatch[1] + '>')) {
             $.trim("", "", false, false); // Collapse the tag, then get the correct indentation of it
-            lineMatch = /^(\s+)/.exec($.$().before.split('\n').pop());
-            lineMatchIndent = lineMatch && lineMatch[1] || "";
+            lineMatch = /^\s+/.exec($.$().before.split('\n').pop());
+            lineMatchIndent = lineMatch && lineMatch[0] || "";
             $.wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent);
         }
         return $.wrapElement(open, close, wrap);

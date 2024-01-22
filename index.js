@@ -221,8 +221,8 @@
         var value = _$$$.value,
             charIndent = ((_$$state$source = $.state.source) == null ? void 0 : _$$state$source.tab) || $.state.tab || '\t',
             elements = $.state.elements || {},
-            lineMatch = /^(\s+)/.exec(before.split('\n').pop()),
-            lineMatchIndent = lineMatch && lineMatch[1] || "";
+            lineMatch = /^\s+/.exec(before.split('\n').pop()),
+            lineMatchIndent = lineMatch && lineMatch[0] || "";
         if (isInteger(charIndent)) {
             charIndent = ' '.repeat(charIndent);
         }
@@ -343,16 +343,16 @@
                 before = _$$$4.before;
             _$$$4.value;
             var charIndent = ((_$$state$source2 = $.state.source) == null ? void 0 : _$$state$source2.tab) || $.state.tab || '\t',
-                lineMatch = /^(\s+)/.exec(before.split('\n').pop()),
-                lineMatchIndent = lineMatch && lineMatch[1] || "",
+                lineMatch = /^\s+/.exec(before.split('\n').pop()),
+                lineMatchIndent = lineMatch && lineMatch[0] || "",
                 tagStartMatch = toPattern(tagStart(tagName()) + '$', "").exec(before.trim());
             if (isInteger(charIndent)) {
                 charIndent = ' '.repeat(charIndent);
             }
             if (tagStartMatch && after.trim().startsWith('</' + tagStartMatch[1] + '>')) {
                 $.trim("", "", false, false); // Collapse the tag, then get the correct indentation of it
-                lineMatch = /^(\s+)/.exec($.$().before.split('\n').pop());
-                lineMatchIndent = lineMatch && lineMatch[1] || "";
+                lineMatch = /^\s+/.exec($.$().before.split('\n').pop());
+                lineMatchIndent = lineMatch && lineMatch[0] || "";
                 $.wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent);
             }
             return $.wrapElement(open, close, wrap);
