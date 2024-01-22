@@ -33,47 +33,47 @@ const elements = {
     area: ['area', false],
     b: ['strong', 'text goes here…'],
     base: ['base', false, {href: ""}],
-    blockquote: ['blockquote', 'quote goes here…'],
+    blockquote: ['blockquote', ""],
     br: ['br', false],
     button: ['button', 'text goes here…', {name: "", type: 'submit'}],
-    caption: ['caption', 'table caption goes here…'],
+    caption: ['caption', 'Caption goes here…'],
     code: ['code', 'code goes here…'],
     col: ['col', false],
-    dd: ['dd', 'data goes here…'],
+    dd: ['dd', 'Data goes here…'],
     dl: ['dl', ""],
-    dt: ['dt', 'title goes here…'],
+    dt: ['dt', 'Title goes here…'],
     em: ['em', 'text goes here…'],
-    figcaption: ['figcaption', 'image caption goes here…'],
+    figcaption: ['figcaption', 'Caption goes here…'],
     figure: ['figure', ""],
-    h1: ['h1', 'title goes here…'],
-    h2: ['h2', 'title goes here…'],
-    h3: ['h3', 'title goes here…'],
-    h4: ['h4', 'title goes here…'],
-    h5: ['h5', 'title goes here…'],
-    h6: ['h6', 'title goes here…'],
+    h1: ['h1', 'Title goes here…'],
+    h2: ['h2', 'Title goes here…'],
+    h3: ['h3', 'Title goes here…'],
+    h4: ['h4', 'Title goes here…'],
+    h5: ['h5', 'Title goes here…'],
+    h6: ['h6', 'Title goes here…'],
     hr: ['hr', false],
     i: ['em', 'text goes here…'],
     img: ['img', false, {alt: "", src: ""}],
     input: ['input', false, {name: "", type: 'text'}],
-    li: ['li', 'list item goes here…'],
+    li: ['li', 'List item goes here…'],
     link: ['link', false, {href: ""}],
     meta: ['meta', false],
     ol: ['ol', ""],
-    option: ['option', 'option goes here…'],
-    p: ['p', 'paragraph goes here…'],
+    option: ['option', 'Option goes here…'],
+    p: ['p', 'Paragraph goes here…'],
     param: ['param', false, {name: ""}],
     pre: ['pre', 'text goes here…'],
     q: ['q', 'quote goes here…'],
-    script: ['script', 'code goes here…'],
+    script: ['script', 'Code goes here…'],
     select: ['select', "", {name: ""}],
     source: ['source', false, {src: ""}],
     strong: ['strong', 'text goes here…'],
-    style: ['style', 'code goes here…'],
+    style: ['style', 'Code goes here…'],
     tbody: ['tbody', ""],
-    td: ['td', 'data goes here…'],
+    td: ['td', 'Data goes here…'],
     textarea: ['textarea', 'value goes here…', {name: ""}],
     tfoot: ['tfoot', ""],
-    th: ['th', 'title goes here…'],
+    th: ['th', 'Title goes here…'],
     thead: ['thead', ""],
     tr: ['tr', ""],
     track: ['track', false],
@@ -103,20 +103,42 @@ function onKeyDown(e) {
         return;
     }
     let {after, before, end, start, value} = $.$(),
+        charIndent = $.state.source?.tab || $.state.tab || '\t',
+        elements = $.state.elements || {},
         lineMatch = /^(\s+)/.exec(before.split('\n').pop()),
         lineMatchIndent = lineMatch && lineMatch[1] || "";
+    if (isInteger(charIndent)) {
+        charIndent = ' '.repeat(charIndent);
+    }
+    if ('Control-Shift-Enter' === keys) {
+        offEventDefault(e);
+        return;
+    }
+    if ('Control-Enter' === keys) {
+        offEventDefault(e);
+        return;
+    }
     if ('Enter' === keys) {
         if (m = toPattern('^' + tagEnd('h[1-6]|p')).exec(after)) {
             offEventDefault(e);
-            return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock(['p']);
+            if (!value && toPattern(tagStart(m[1]) + '$', "").test(before) || (value && elements[m[1]] && value === elements[m[1]][1])) {
+                return $.insert("").wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent).record();
+            }
+            return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock(['p']).record();
         }
         if (m = toPattern('^' + tagEnd('dt')).exec(after)) {
             offEventDefault(e);
-            return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock(['dd']);
+            if (!value && toPattern(tagStart(m[1]) + '$', "").test(before) || (value && elements[m[1]] && value === elements[m[1]][1])) {
+                return $.insert("").wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent).record();
+            }
+            return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock(['dd']).record();
         }
         if (m = toPattern('^' + tagEnd('dd|li')).exec(after)) {
             offEventDefault(e);
-            return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock([m[1]]);
+            if (!value && toPattern(tagStart(m[1]) + '$', "").test(before) || (value && elements[m[1]] && value === elements[m[1]][1])) {
+                return $.insert("").wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent).record();
+            }
+            return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock([m[1]]).record();
         }
         return;
     }
