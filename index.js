@@ -255,7 +255,7 @@
                 }
                 return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock(['dd']).record();
             }
-            if (m = toPattern('^' + tagEnd('dd|li')).exec(after)) {
+            if (m = toPattern('^' + tagEnd('dd|li|t[dh]')).exec(after)) {
                 offEventDefault(e);
                 if (!value && toPattern(tagStart(m[1]) + '$', "").test(before) || value && elements[m[1]] && value === elements[m[1]][1]) {
                     return $.trim('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent).insert("").record();

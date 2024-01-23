@@ -11,26 +11,6 @@ const ALT_PREFIX = 'Alt-';
 const CTRL_PREFIX = 'Control-';
 const SHIFT_PREFIX = 'Shift-';
 
-const blocks = {
-    blockquote: 1,
-    div: 1,
-    dl: 1,
-    figure: 1,
-    form: 1,
-    h1: 1,
-    h2: 1,
-    h3: 1,
-    h4: 1,
-    h5: 1,
-    h6: 1,
-    hr: 1,
-    ol: 1,
-    p: 1,
-    pre: 1,
-    table: 1,
-    ul: 1
-};
-
 const elements = {
     "": ["", 'text goes here…'],
     a: ['a', 'link text goes here…', {href: ""}],
@@ -141,7 +121,7 @@ function onKeyDown(e) {
             }
             return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock(['dd']).record();
         }
-        if (m = toPattern('^' + tagEnd('dd|li')).exec(after)) {
+        if (m = toPattern('^' + tagEnd('dd|li|t[dh]')).exec(after)) {
             offEventDefault(e);
             if (!value && toPattern(tagStart(m[1]) + '$', "").test(before) || (value && elements[m[1]] && value === elements[m[1]][1])) {
                 return $.trim('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent).insert("").record();
