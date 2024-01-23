@@ -7,6 +7,10 @@ import {offEventDefault} from '@taufik-nurrohman/event';
 import {that, toAttributes} from '@taufik-nurrohman/text-editor.source-x-m-l';
 import {toCount, toHTML, toObjectKeys} from '@taufik-nurrohman/to';
 
+const ALT_PREFIX = 'Alt-';
+const CTRL_PREFIX = 'Control-';
+const SHIFT_PREFIX = 'Shift-';
+
 const blocks = {
     blockquote: 1,
     div: 1,
@@ -110,33 +114,37 @@ function onKeyDown(e) {
     if (isInteger(charIndent)) {
         charIndent = ' '.repeat(charIndent);
     }
-    if ('Control-Shift-Enter' === keys) {
+    if (CTRL_PREFIX + SHIFT_PREFIX + 'Enter' === keys) {
         offEventDefault(e);
-        return $.insertBlock("", -1).toggleElementBlock(['p']);
+        return (before ? $.insertBlock("", -1) : $).toggleElementBlock(['p']);
     }
-    if ('Control-Enter' === keys) {
+    if (CTRL_PREFIX + 'Enter' === keys) {
         offEventDefault(e);
-        return $.insertBlock("", 1).toggleElementBlock(['p']);
+        return (before ? $.insertBlock("", 1) : $).toggleElementBlock(['p']);
+    }
+    if (SHIFT_PREFIX + 'Enter' === keys) {
+        offEventDefault(e);
+        return $.insertElement(['br', false]).insert('\n', -1, true).record();
     }
     if ('Enter' === keys) {
         if (m = toPattern('^' + tagEnd('h[1-6]|p')).exec(after)) {
             offEventDefault(e);
             if (!value && toPattern(tagStart(m[1]) + '$', "").test(before) || (value && elements[m[1]] && value === elements[m[1]][1])) {
-                return $.insert("").wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent).record();
+                return $.trim('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent).insert("").record();
             }
             return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock(['p']).record();
         }
         if (m = toPattern('^' + tagEnd('dt')).exec(after)) {
             offEventDefault(e);
             if (!value && toPattern(tagStart(m[1]) + '$', "").test(before) || (value && elements[m[1]] && value === elements[m[1]][1])) {
-                return $.insert("").wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent).record();
+                return $.trim('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent).insert("").record();
             }
             return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock(['dd']).record();
         }
         if (m = toPattern('^' + tagEnd('dd|li')).exec(after)) {
             offEventDefault(e);
             if (!value && toPattern(tagStart(m[1]) + '$', "").test(before) || (value && elements[m[1]] && value === elements[m[1]][1])) {
-                return $.insert("").wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent).record();
+                return $.trim('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent).insert("").record();
             }
             return $.select(end + toCount(m[0])).insert('\n' + lineMatchIndent, -1).toggleElementBlock([m[1]]).record();
         }

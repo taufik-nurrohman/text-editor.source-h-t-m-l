@@ -70,7 +70,7 @@
                   ['h4'],
                   ['h5'],
                   ['h6'],
-                  ['p'],
+                  ['p']
               ]).record(), false;
           },
           bold: function () {
@@ -81,7 +81,7 @@
               return this.insertImage(hint, value, function () {
                   this.record();
               }), false;
-          }
+          },
           italic: function () {
               return this.toggleElement(['em']).record(), false;
           },
@@ -115,6 +115,13 @@
       keys: {
           'Control-[': 'pull',
           'Control-]': 'push',
+          'Control-b': 'bold',
+          'Control-e': 'code',
+          'Control-h': 'blocks',
+          'Control-i': 'italic',
+          'Control-l': 'link',
+          'Control-o': 'image',
+          'Control-u': 'underline',
           'Control-y': 'redo',
           'Control-z': 'undo'
       },
@@ -142,13 +149,13 @@
 });</code></pre>
       <h4><code>editor.insertElementBlock(value, mode = -1, clear = true)</code></h4>
       <h4><code>editor.insertElementBlock(of, mode = -1, clear = true)</code></h4>
-      <h4><code>editor.peelElementBlock(of, wrap)</code></h4>
-      <h4><code>editor.toggleElementBlock(of, wrap)</code></h4>
-      <h4><code>editor.peelElementBlock(open, close, wrap)</code></h4>
-      <h4><code>editor.toggleElementBlock(open, close, wrap)</code></h4>
-      <h4><code>editor.wrapElementBlock(open, close, wrap)</code></h4>
-      <h4><code>editor.wrapElementBlock(of, wrap)</code></h4>
-      <h4><code>editor.toggleElements(of, wrap)</code></h4>
+      <h4><code>editor.peelElementBlock(of, wrap = false)</code></h4>
+      <h4><code>editor.toggleElementBlock(of, wrap = false)</code></h4>
+      <h4><code>editor.peelElementBlock(open, close, wrap = false)</code></h4>
+      <h4><code>editor.toggleElementBlock(open, close, wrap = false)</code></h4>
+      <h4><code>editor.wrapElementBlock(open, close, wrap = false)</code></h4>
+      <h4><code>editor.wrapElementBlock(of, wrap = false)</code></h4>
+      <h4><code>editor.toggleElements(of, wrap = false)</code></h4>
       <p>Toggle elements in the list.</p>
     </main>
     <footer>
@@ -165,14 +172,51 @@
     <script>
       const editor = new TextEditor(document.querySelector('textarea'), {
           commands: {
+              blocks: function () {
+                  return this.toggleElements([
+                      ['h1'],
+                      ['h2'],
+                      ['h3'],
+                      ['h4'],
+                      ['h5'],
+                      ['h6'],
+                      ['p']
+                  ]).record(), false;
+              },
+              bold: function () {
+                  return this.toggleElement(['strong']).record(), false;
+              },
+              code: function () {},
+              image: function (hint, value) {
+                  return this.insertImage(hint, value, function () {
+                      this.record();
+                  }), false;
+              },
+              italic: function () {
+                  return this.toggleElement(['em']).record(), false;
+              },
+              link: function (hint, value) {
+                  return this.insertLink(hint, value, function () {
+                      this.record();
+                  }), false;
+              },
               pull: function () {
                   return this.pull().record(), false;
               },
               push: function () {
                   return this.push().record(), false;
               },
+              quote: function () {
+                  return this.toggleElements([
+                      ['blockquote'],
+                      ['q']
+                  ]).record(), false;
+              },
               redo: function () {
                   return this.redo(), false;
+              },
+              underline: function () {
+                  return this.toggleElement(['u']).record(), false;
               },
               undo: function () {
                   return this.undo(), false;
@@ -181,6 +225,13 @@
           keys: {
               'Control-[': 'pull',
               'Control-]': 'push',
+              'Control-b': 'bold',
+              'Control-e': 'code',
+              'Control-h': 'blocks',
+              'Control-i': 'italic',
+              'Control-l': 'link',
+              'Control-o': 'image',
+              'Control-u': 'underline',
               'Control-y': 'redo',
               'Control-z': 'undo'
           },

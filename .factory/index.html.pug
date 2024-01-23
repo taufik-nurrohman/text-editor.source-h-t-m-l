@@ -10,14 +10,51 @@ block script
   script
     | const editor = new TextEditor(document.querySelector('textarea'), {
     |     commands: {
+    |         blocks: function () {
+    |             return this.toggleElements([
+    |                 ['h1'],
+    |                 ['h2'],
+    |                 ['h3'],
+    |                 ['h4'],
+    |                 ['h5'],
+    |                 ['h6'],
+    |                 ['p']
+    |             ]).record(), false;
+    |         },
+    |         bold: function () {
+    |             return this.toggleElement(['strong']).record(), false;
+    |         },
+    |         code: function () {},
+    |         image: function (hint, value) {
+    |             return this.insertImage(hint, value, function () {
+    |                 this.record();
+    |             }), false;
+    |         },
+    |         italic: function () {
+    |             return this.toggleElement(['em']).record(), false;
+    |         },
+    |         link: function (hint, value) {
+    |             return this.insertLink(hint, value, function () {
+    |                 this.record();
+    |             }), false;
+    |         },
     |         pull: function () {
     |             return this.pull().record(), false;
     |         },
     |         push: function () {
     |             return this.push().record(), false;
     |         },
+    |         quote: function () {
+    |             return this.toggleElements([
+    |                 ['blockquote'],
+    |                 ['q']
+    |             ]).record(), false;
+    |         },
     |         redo: function () {
     |             return this.redo(), false;
+    |         },
+    |         underline: function () {
+    |             return this.toggleElement(['u']).record(), false;
     |         },
     |         undo: function () {
     |             return this.undo(), false;
@@ -26,6 +63,13 @@ block script
     |     keys: {
     |         'Control-[': 'pull',
     |         'Control-]': 'push',
+    |         'Control-b': 'bold',
+    |         'Control-e': 'code',
+    |         'Control-h': 'blocks',
+    |         'Control-i': 'italic',
+    |         'Control-l': 'link',
+    |         'Control-o': 'image',
+    |         'Control-u': 'underline',
     |         'Control-y': 'redo',
     |         'Control-z': 'undo'
     |     },
@@ -108,7 +152,7 @@ block content
       |                   ['h4'],
       |                   ['h5'],
       |                   ['h6'],
-      |                   ['p'],
+      |                   ['p']
       |               ]).record(), false;
       |           },
       |           bold: function () {
@@ -119,7 +163,7 @@ block content
       |               return this.insertImage(hint, value, function () {
       |                   this.record();
       |               }), false;
-      |           }
+      |           },
       |           italic: function () {
       |               return this.toggleElement(['em']).record(), false;
       |           },
@@ -153,6 +197,13 @@ block content
       |       keys: {
       |           'Control-[': 'pull',
       |           'Control-]': 'push',
+      |           'Control-b': 'bold',
+      |           'Control-e': 'code',
+      |           'Control-h': 'blocks',
+      |           'Control-i': 'italic',
+      |           'Control-l': 'link',
+      |           'Control-o': 'image',
+      |           'Control-u': 'underline',
       |           'Control-y': 'redo',
       |           'Control-z': 'undo'
       |       },
@@ -182,13 +233,13 @@ block content
       | });
     h4: code editor.insertElementBlock(value, mode = -1, clear = true)
     h4: code editor.insertElementBlock(of, mode = -1, clear = true)
-    h4: code editor.peelElementBlock(of, wrap)
-    h4: code editor.toggleElementBlock(of, wrap)
-    h4: code editor.peelElementBlock(open, close, wrap)
-    h4: code editor.toggleElementBlock(open, close, wrap)
-    h4: code editor.wrapElementBlock(open, close, wrap)
-    h4: code editor.wrapElementBlock(of, wrap)
-    h4: code editor.toggleElements(of, wrap)
+    h4: code editor.peelElementBlock(of, wrap = false)
+    h4: code editor.toggleElementBlock(of, wrap = false)
+    h4: code editor.peelElementBlock(open, close, wrap = false)
+    h4: code editor.toggleElementBlock(open, close, wrap = false)
+    h4: code editor.wrapElementBlock(open, close, wrap = false)
+    h4: code editor.wrapElementBlock(of, wrap = false)
+    h4: code editor.toggleElements(of, wrap = false)
     p Toggle elements in the list.
   footer
     hr
