@@ -11,7 +11,7 @@ block script
     | const editor = new TextEditor(document.querySelector('textarea'), {
     |     commands: {
     |         blocks: function () {
-    |             return this.toggleElements([
+    |             return this.toggleElementsBlock([
     |                 ['h1'],
     |                 ['h2'],
     |                 ['h3'],
@@ -24,7 +24,9 @@ block script
     |         bold: function () {
     |             return this.toggleElement(['strong']).record(), false;
     |         },
-    |         code: function () {},
+    |         code: function () {
+    |             return this.toggleCode().record(), false;
+    |         },
     |         image: function (hint, value) {
     |             return this.insertImage(hint, value, function () {
     |                 this.record();
@@ -45,10 +47,7 @@ block script
     |             return this.push().record(), false;
     |         },
     |         quote: function () {
-    |             return this.toggleElements([
-    |                 ['blockquote'],
-    |                 ['q']
-    |             ]).record(), false;
+    |             return this.toggleQuote().record(), false;
     |         },
     |         redo: function () {
     |             return this.redo(), false;
@@ -241,6 +240,8 @@ block content
     h4: code editor.wrapElementBlock(of, wrap = false)
     h4: code editor.toggleElements(of, wrap = false)
     p Toggle elements in the list.
+    h4: code editor.toggleElementsBlock(of, wrap = false)
+    p Toggle block elements in the list.
   footer
     hr
     p
