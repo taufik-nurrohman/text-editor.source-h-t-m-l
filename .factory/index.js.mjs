@@ -4,7 +4,6 @@ import {fromHTML, fromStates, fromValue} from '@taufik-nurrohman/from';
 import {hasValue} from '@taufik-nurrohman/has';
 import {isArray, isFunction, isInteger, isSet, isString} from '@taufik-nurrohman/is';
 import {offEventDefault} from '@taufik-nurrohman/event';
-import {that, toAttributes} from '@taufik-nurrohman/text-editor.source-x-m-l';
 import {toCount, toHTML, toObjectKeys} from '@taufik-nurrohman/to';
 
 const ALT_PREFIX = 'Alt-';

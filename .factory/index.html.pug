@@ -60,7 +60,10 @@ block script
     |         }
     |     },
     |     keys: {
+    |         'Control-"': 'quote',
+    |         'Control-Shift-"': 'quote',
     |         'Control-[': 'pull',
+    |         'Control-\'': 'quote',
     |         'Control-]': 'push',
     |         'Control-b': 'bold',
     |         'Control-e': 'code',
@@ -157,7 +160,9 @@ block content
       |           bold: function () {
       |               return this.toggleElement(['strong']).record(), false;
       |           },
-      |           code: function () {},
+      |           code: function () {
+      |               return this.toggleCode().record(), false;
+      |           },
       |           image: function (hint, value) {
       |               return this.insertImage(hint, value, function () {
       |                   this.record();
@@ -178,10 +183,7 @@ block content
       |               return this.push().record(), false;
       |           },
       |           quote: function () {
-      |               return this.toggleElements([
-      |                   ['blockquote'],
-      |                   ['q']
-      |               ]).record(), false;
+      |               return this.toggleQuote().record(), false;
       |           },
       |           redo: function () {
       |               return this.redo(), false;
@@ -194,7 +196,10 @@ block content
       |           }
       |       },
       |       keys: {
+      |           'Control-"': 'quote',
+      |           'Control-Shift-"': 'quote',
       |           'Control-[': 'pull',
+      |           'Control-\'': 'quote',
       |           'Control-]': 'push',
       |           'Control-b': 'bold',
       |           'Control-e': 'code',

@@ -76,7 +76,9 @@
           bold: function () {
               return this.toggleElement(['strong']).record(), false;
           },
-          code: function () {},
+          code: function () {
+              return this.toggleCode().record(), false;
+          },
           image: function (hint, value) {
               return this.insertImage(hint, value, function () {
                   this.record();
@@ -97,10 +99,7 @@
               return this.push().record(), false;
           },
           quote: function () {
-              return this.toggleElements([
-                  ['blockquote'],
-                  ['q']
-              ]).record(), false;
+              return this.toggleQuote().record(), false;
           },
           redo: function () {
               return this.redo(), false;
@@ -113,7 +112,10 @@
           }
       },
       keys: {
+          'Control-"': 'quote',
+          'Control-Shift-"': 'quote',
           'Control-[': 'pull',
+          'Control-\'': 'quote',
           'Control-]': 'push',
           'Control-b': 'bold',
           'Control-e': 'code',
@@ -157,6 +159,8 @@
       <h4><code>editor.wrapElementBlock(of, wrap = false)</code></h4>
       <h4><code>editor.toggleElements(of, wrap = false)</code></h4>
       <p>Toggle elements in the list.</p>
+      <h4><code>editor.toggleElementsBlock(of, wrap = false)</code></h4>
+      <p>Toggle block elements in the list.</p>
     </main>
     <footer>
       <hr>
@@ -173,7 +177,7 @@
       const editor = new TextEditor(document.querySelector('textarea'), {
           commands: {
               blocks: function () {
-                  return this.toggleElements([
+                  return this.toggleElementsBlock([
                       ['h1'],
                       ['h2'],
                       ['h3'],
@@ -186,7 +190,9 @@
               bold: function () {
                   return this.toggleElement(['strong']).record(), false;
               },
-              code: function () {},
+              code: function () {
+                  return this.toggleCode().record(), false;
+              },
               image: function (hint, value) {
                   return this.insertImage(hint, value, function () {
                       this.record();
@@ -207,10 +213,7 @@
                   return this.push().record(), false;
               },
               quote: function () {
-                  return this.toggleElements([
-                      ['blockquote'],
-                      ['q']
-                  ]).record(), false;
+                  return this.toggleQuote().record(), false;
               },
               redo: function () {
                   return this.redo(), false;
@@ -223,7 +226,10 @@
               }
           },
           keys: {
+              'Control-"': 'quote',
+              'Control-Shift-"': 'quote',
               'Control-[': 'pull',
+              'Control-\'': 'quote',
               'Control-]': 'push',
               'Control-b': 'bold',
               'Control-e': 'code',

@@ -4,7 +4,6 @@ import {fromHTML, fromStates, fromValue} from '@taufik-nurrohman/from';
 import {hasValue} from '@taufik-nurrohman/has';
 import {isArray, isFunction, isInteger, isSet, isString} from '@taufik-nurrohman/is';
 import {offEventDefault} from '@taufik-nurrohman/event';
-import {that, toAttributes} from '@taufik-nurrohman/text-editor.source-x-m-l';
 import {toCount, toHTML, toObjectKeys} from '@taufik-nurrohman/to';
 
 const ALT_PREFIX = 'Alt-';
@@ -188,6 +187,7 @@ function attach() {
     $.peelElementBlock = (open, close, wrap) => {
         return $.peelElement(open, close, wrap).trim("", "", false, false);
     };
+    $.toggleCode = () => {};
     $.toggleElementBlock = (open, close, wrap) => {
         let {after, before, value} = $.$();
         if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
@@ -198,6 +198,9 @@ function attach() {
         }
         return $[(toPattern('^' + tagEnd(open[0]), "").test(after) && toPattern(tagStart(open[0]) + '$', "").test(before) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
     };
+    $.toggleElements = (of, wrap) => {};
+    $.toggleElementsBlock = (of, wrap) => {};
+    $.toggleQuote = () => {};
     $.wrapElementBlock = (open, close, wrap) => {
         let {after, before, value} = $.$(),
             charIndent = $.state.source?.tab || $.state.tab || '\t',

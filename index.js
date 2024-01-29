@@ -110,8 +110,6 @@
         if (isPattern(pattern)) {
             return pattern;
         }
-        // No need to escape `/` in the pattern string
-        pattern = pattern.replace(/\//g, '\\/');
         return new RegExp(pattern, isSet(opt) ? opt : 'g');
     };
     var offEventDefault = function offEventDefault(e) {
@@ -329,6 +327,7 @@
         $.peelElementBlock = function (open, close, wrap) {
             return $.peelElement(open, close, wrap).trim("", "", false, false);
         };
+        $.toggleCode = function () {};
         $.toggleElementBlock = function (open, close, wrap) {
             var _$$$3 = $.$(),
                 after = _$$$3.after,
@@ -342,6 +341,9 @@
             }
             return $[(toPattern('^' + tagEnd(open[0]), "").test(after) && toPattern(tagStart(open[0]) + '$', "").test(before) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
         };
+        $.toggleElements = function (of, wrap) {};
+        $.toggleElementsBlock = function (of, wrap) {};
+        $.toggleQuote = function () {};
         $.wrapElementBlock = function (open, close, wrap) {
             var _$$state$source2;
             var _$$$4 = $.$(),
