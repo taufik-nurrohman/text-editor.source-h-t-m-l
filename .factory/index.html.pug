@@ -18,7 +18,8 @@ block script
     |                 ['h4'],
     |                 ['h5'],
     |                 ['h6'],
-    |                 ['p']
+    |                 ['p'],
+    |                 false
     |             ]).record(), false;
     |         },
     |         bold: function () {
@@ -147,14 +148,15 @@ block content
       |   const editor = new TextEditor(document.querySelector('textarea'), {
       |       commands: {
       |           blocks: function () {
-      |               return this.toggleElements([
+      |               return this.toggleElementsBlock([
       |                   ['h1'],
       |                   ['h2'],
       |                   ['h3'],
       |                   ['h4'],
       |                   ['h5'],
       |                   ['h6'],
-      |                   ['p']
+      |                   ['p'],
+      |                   false
       |               ]).record(), false;
       |           },
       |           bold: function () {
@@ -245,8 +247,25 @@ block content
     h4: code editor.wrapElementBlock(of, wrap = false)
     h4: code editor.toggleElements(of, wrap = false)
     p Toggle elements in the list.
+    pre: code
+      | editor.toggleElements([
+      |     ['b'],
+      |     ['strong'],
+      |     false
+      | ]);
     h4: code editor.toggleElementsBlock(of, wrap = false)
     p Toggle block elements in the list.
+    pre: code
+      | editor.toggleElementsBlock([
+      |     ['h1'],
+      |     ['h2'],
+      |     ['h3'],
+      |     ['h4'],
+      |     ['h5'],
+      |     ['h6'],
+      |     ['p'],
+      |     false
+      | ]);
   footer
     hr
     p

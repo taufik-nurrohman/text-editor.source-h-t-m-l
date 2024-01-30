@@ -268,7 +268,8 @@
         var $ = this,
             m;
         $.state = fromStates({
-            elements: elements
+            elements: elements,
+            elementsCurrent: 0
         }, $.state);
         $.insertElementBlock = function (value, mode, clear) {
             if (!isSet(mode)) {
@@ -325,7 +326,8 @@
             });
         };
         $.peelElementBlock = function (open, close, wrap) {
-            return $.peelElement(open, close, wrap).trim("", "", false, false);
+            // TODO
+            // return $.peelElement(open, close, wrap).trim("", "", false, false);
         };
         $.toggleCode = function () {};
         $.toggleElementBlock = function (open, close, wrap) {
@@ -342,7 +344,20 @@
             return $[(toPattern('^' + tagEnd(open[0]), "").test(after) && toPattern(tagStart(open[0]) + '$', "").test(before) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
         };
         $.toggleElements = function (of, wrap) {};
-        $.toggleElementsBlock = function (of, wrap) {};
+        $.toggleElementsBlock = function (of, wrap) {
+            var count = toCount(of),
+                current = $.state.elementsCurrent;
+            of.forEach(function (v) {
+                return v ? $.selectBlock().peelElement(v, true) : $;
+            });
+            of [current] && $.wrapElementBlock(of [current], wrap);
+            if (current >= count - 1) {
+                current = 0;
+            } else {
+                current += 1;
+            }
+            return $.state.elementsCurrent = current, $;
+        };
         $.toggleQuote = function () {};
         $.wrapElementBlock = function (open, close, wrap) {
             var _$$state$source2;

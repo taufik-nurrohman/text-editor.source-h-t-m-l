@@ -134,7 +134,8 @@ function onKeyDown(e) {
 function attach() {
     let $ = this, m;
     $.state = fromStates({
-        elements
+        elements,
+        elementsCurrent: 0
     }, $.state);
     $.insertElementBlock = (value, mode, clear) => {
         if (!isSet(mode)) {
@@ -185,7 +186,8 @@ function attach() {
         });
     };
     $.peelElementBlock = (open, close, wrap) => {
-        return $.peelElement(open, close, wrap).trim("", "", false, false);
+        // TODO
+        // return $.peelElement(open, close, wrap).trim("", "", false, false);
     };
     $.toggleCode = () => {};
     $.toggleElementBlock = (open, close, wrap) => {
@@ -199,7 +201,18 @@ function attach() {
         return $[(toPattern('^' + tagEnd(open[0]), "").test(after) && toPattern(tagStart(open[0]) + '$', "").test(before) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
     };
     $.toggleElements = (of, wrap) => {};
-    $.toggleElementsBlock = (of, wrap) => {};
+    $.toggleElementsBlock = (of, wrap) => {
+        let count = toCount(of),
+            current = $.state.elementsCurrent;
+        of.forEach(v => v ? $.selectBlock().peelElement(v, true) : $);
+        of[current] && $.wrapElementBlock(of[current], wrap);
+        if (current >= count - 1) {
+            current = 0;
+        } else {
+            current += 1;
+        }
+        return ($.state.elementsCurrent = current), $;
+    };
     $.toggleQuote = () => {};
     $.wrapElementBlock = (open, close, wrap) => {
         let {after, before, value} = $.$(),
