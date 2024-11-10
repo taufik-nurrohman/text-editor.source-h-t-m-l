@@ -232,11 +232,11 @@
         }
         if (CTRL_PREFIX + SHIFT_PREFIX + KEY_ENTER === keys) {
             offEventDefault(e);
-            return (before ? $.insertBlock("", -1) : $).toggleElementBlock(['p']);
+            return (before ? $.insertLine("", -1) : $).toggleElementBlock(['p']);
         }
         if (CTRL_PREFIX + KEY_ENTER === keys) {
             offEventDefault(e);
-            return (before ? $.insertBlock("", 1) : $).toggleElementBlock(['p']);
+            return (before ? $.insertLine("", 1) : $).toggleElementBlock(['p']);
         }
         if (SHIFT_PREFIX + KEY_ENTER === keys) {
             offEventDefault(e);
@@ -357,7 +357,7 @@
                 count = toCount(of),
                 current = $.state.elementsCurrent.block || 0;
             of.forEach(function (v) {
-                return v ? $.selectBlock(false).peelElement(v, true) : $;
+                return v ? $.selectLine(false).peelElement(v, true) : $;
             });
             of [current] && $.wrapElementBlock(of [current], wrap);
             if (current >= count - 1) {
