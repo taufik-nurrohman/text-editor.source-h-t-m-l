@@ -214,7 +214,7 @@ function attach() {
         let $ = this,
             count = toCount(of),
             current = $.state.elementsCurrent.block || 0;
-        of.forEach(v => v ? $.selectBlock().peelElement(v, true) : $);
+        of.forEach(v => v ? $.selectBlock(false).peelElement(v, true) : $);
         of[current] && $.wrapElementBlock(of[current], wrap);
         if (current >= count - 1) {
             current = 0;

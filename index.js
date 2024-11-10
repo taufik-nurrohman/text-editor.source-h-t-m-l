@@ -357,7 +357,7 @@
                 count = toCount(of),
                 current = $.state.elementsCurrent.block || 0;
             of.forEach(function (v) {
-                return v ? $.selectBlock().peelElement(v, true) : $;
+                return v ? $.selectBlock(false).peelElement(v, true) : $;
             });
             of [current] && $.wrapElementBlock(of [current], wrap);
             if (current >= count - 1) {
