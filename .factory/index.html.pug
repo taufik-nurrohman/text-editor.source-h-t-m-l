@@ -1,7 +1,7 @@
 extends _index.pug
 
 block state
-  - const scripts = ['../key/index.min.js', '../text-editor/index.min.js', '../text-editor.history/index.min.js', '../text-editor.key/index.min.js', '../text-editor.source/index.min.js', '../text-editor.source-x-m-l/index.min.js', 'index.min.js']
+  - const scripts = ['../text-editor/index.min.js', '../text-editor.history/index.min.js', '../text-editor.key/index.min.js', '../text-editor.source/index.min.js', '../text-editor.source-x-m-l/index.min.js', 'index.min.js']
   - const styles = ['../layout/index.min.css']
   - const theme = '#000'
   - const title = 'Text Editor Source HTML ' + version
@@ -82,6 +82,11 @@ block script
 
 block style
   style
+    | body {
+    |   margin-left: auto;
+    |   margin-right: auto;
+    |   max-width: 60rem;
+    | }
     | mark {
     |   border-left: 1px solid #f00;
     |   border-right: 1px solid #f00;
@@ -90,14 +95,17 @@ block style
     | mark:empty {
     |   border-right-width: 0;
     | }
+    | .text-editor__self {
+    |   background: #ccc;
+    | }
 
 block content
   header
-    h1
-      a(href='../text-editor/index.html') &laquo;
-      = ' ' + title
-    p #[abbr(title='Hyper Text Markup Language') HTML] source extension for #[a(href='../text-editor/index.html') Text Editor]. This extension provides a set of key strokes to generate responses like in a typical #[abbr(title='Hyper Text Markup Language') HTML] source code editor.
-    hr
+    hgroup
+      h1
+        a(href='../text-editor/index.html') &laquo;
+        = ' ' + title
+      p This extension provides a set of key strokes to generate responses like in a typical #[abbr(title='Hyper Text Markup Language') HTML] source code editor.
   main
     p
       label
@@ -226,13 +234,13 @@ block content
     h2 Methods
     h3 Instance Methods
     h4: code editor.insertImage(hint, value, then)
-    p Insert an image from URL.
+    p Inserts an image from URL.
     pre: code
       | editor.insertImage('URL:', 'http://', function (value) {
       |     console.log(value);
       | });
     h4: code editor.insertLink(hint, value, then)
-    p Insert a link from URL.
+    p Inserts a link from URL.
     pre: code
       | editor.insertLink('URL:', 'http://', function (value) {
       |     console.log(value);
@@ -246,7 +254,7 @@ block content
     h4: code editor.wrapElementBlock(open, close, wrap = false)
     h4: code editor.wrapElementBlock(of, wrap = false)
     h4: code editor.toggleElements(of, wrap = false)
-    p Toggle elements in the list.
+    p Toggles elements in the list.
     pre: code
       | editor.toggleElements([
       |     ['b'],
@@ -254,7 +262,7 @@ block content
       |     false
       | ]);
     h4: code editor.toggleElementsBlock(of, wrap = false)
-    p Toggle block elements in the list.
+    p Toggles block elements in the list.
     pre: code
       | editor.toggleElementsBlock([
       |     ['h1'],

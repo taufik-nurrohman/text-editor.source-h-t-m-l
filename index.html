@@ -8,6 +8,11 @@
     <title>Text Editor Source HTML 2.0.0</title>
     <link href="../layout/index.min.css" rel="stylesheet">
     <style>
+      body {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 60rem;
+      }
       mark {
         border-left: 1px solid #f00;
         border-right: 1px solid #f00;
@@ -16,13 +21,17 @@
       mark:empty {
         border-right-width: 0;
       }
+      .text-editor__self {
+        background: #ccc;
+      }
     </style>
   </head>
   <body>
     <header>
-      <h1><a href="../text-editor/index.html">&laquo;</a> Text Editor Source HTML 2.0.0</h1>
-      <p><abbr title="Hyper Text Markup Language">HTML</abbr> source extension for <a href="../text-editor/index.html">Text Editor</a>. This extension provides a set of key strokes to generate responses like in a typical <abbr title="Hyper Text Markup Language">HTML</abbr> source code editor.</p>
-      <hr>
+      <hgroup>
+        <h1><a href="../text-editor/index.html">&laquo;</a> Text Editor Source HTML 2.0.0</h1>
+        <p>This extension provides a set of key strokes to generate responses like in a typical <abbr title="Hyper Text Markup Language">HTML</abbr> source code editor.</p>
+      </hgroup>
     </header>
     <main>
       <p><label><input checked onchange="return editor[this.checked ? 'attach' : 'detach'](), false;" type="checkbox"> <span>Enable <abbr title="Hyper Text Markup Language">HTML</abbr> Source Editor</span></label></p>
@@ -141,12 +150,12 @@
       <h2>Methods</h2>
       <h3>Instance Methods</h3>
       <h4><code>editor.insertImage(hint, value, then)</code></h4>
-      <p>Insert an image from URL.</p>
+      <p>Inserts an image from URL.</p>
       <pre><code>editor.insertImage('URL:', 'http://', function (value) {
     console.log(value);
 });</code></pre>
       <h4><code>editor.insertLink(hint, value, then)</code></h4>
-      <p>Insert a link from URL.</p>
+      <p>Inserts a link from URL.</p>
       <pre><code>editor.insertLink('URL:', 'http://', function (value) {
     console.log(value);
 });</code></pre>
@@ -159,14 +168,14 @@
       <h4><code>editor.wrapElementBlock(open, close, wrap = false)</code></h4>
       <h4><code>editor.wrapElementBlock(of, wrap = false)</code></h4>
       <h4><code>editor.toggleElements(of, wrap = false)</code></h4>
-      <p>Toggle elements in the list.</p>
+      <p>Toggles elements in the list.</p>
       <pre><code>editor.toggleElements([
     ['b'],
     ['strong'],
     false
 ]);</code></pre>
       <h4><code>editor.toggleElementsBlock(of, wrap = false)</code></h4>
-      <p>Toggle block elements in the list.</p>
+      <p>Toggles block elements in the list.</p>
       <pre><code>editor.toggleElementsBlock([
     ['h1'],
     ['h2'],
@@ -182,7 +191,6 @@
       <hr>
       <p>&copy; 2024 <a href="/">Taufik Nurrohman</a></p>
     </footer>
-    <script src="../key/index.min.js"></script>
     <script src="../text-editor/index.min.js"></script>
     <script src="../text-editor.history/index.min.js"></script>
     <script src="../text-editor.key/index.min.js"></script>

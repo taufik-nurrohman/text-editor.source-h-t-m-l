@@ -10,6 +10,10 @@ const ALT_PREFIX = 'Alt-';
 const CTRL_PREFIX = 'Control-';
 const SHIFT_PREFIX = 'Shift-';
 
+const KEY_ENTER = 'Enter';
+
+const name = 'TextEditor.SourceHTML';
+
 const elements = {
     "": ["", 'text goes here…'],
     a: ['a', 'link text goes here…', {href: ""}],
@@ -93,19 +97,19 @@ function onKeyDown(e) {
     if (isInteger(charIndent)) {
         charIndent = ' '.repeat(charIndent);
     }
-    if (CTRL_PREFIX + SHIFT_PREFIX + 'Enter' === keys) {
+    if (CTRL_PREFIX + SHIFT_PREFIX + KEY_ENTER === keys) {
         offEventDefault(e);
         return (before ? $.insertBlock("", -1) : $).toggleElementBlock(['p']);
     }
-    if (CTRL_PREFIX + 'Enter' === keys) {
+    if (CTRL_PREFIX + KEY_ENTER === keys) {
         offEventDefault(e);
         return (before ? $.insertBlock("", 1) : $).toggleElementBlock(['p']);
     }
-    if (SHIFT_PREFIX + 'Enter' === keys) {
+    if (SHIFT_PREFIX + KEY_ENTER === keys) {
         offEventDefault(e);
         return $.insertElement(['br', false]).insert('\n', -1, true).record();
     }
-    if ('Enter' === keys) {
+    if (KEY_ENTER === keys) {
         if (m = toPattern('^' + tagEnd('h[1-6]|p')).exec(after)) {
             offEventDefault(e);
             if (!value && toPattern(tagStart(m[1]) + '$', "").test(before) || (value && elements[m[1]] && value === elements[m[1]][1])) {
@@ -132,12 +136,14 @@ function onKeyDown(e) {
 }
 
 function attach() {
-    let $ = this, m;
+    const $ = this;
+    const $$ = $.constructor.prototype;
     $.state = fromStates({
         elements,
-        elementsCurrent: 0
+        elementsCurrent: {}
     }, $.state);
-    $.insertElementBlock = (value, mode, clear) => {
+    !isFunction($$.insertElementBlock) && ($$.insertElementBlock = function (value, mode, clear) {
+        let $ = this;
         if (!isSet(mode)) {
             mode = -1;
         }
@@ -154,8 +160,9 @@ function attach() {
             return $.select(start - beforeCount).insertElement(value, mode).insert('\n', -1);
         }
         return $.select(start - beforeCount, end + afterCount).trim('\n', '\n').insertElement(value, mode, clear);
-    };
-    $.insertImage = (hint, value, then) => {
+    });
+    !isFunction($$.insertImage) && ($$.insertImage = function (hint, value, then) {
+        let $ = this;
         return $.prompt(hint ?? 'URL:', value ?? (theLocation.protocol + '//'), value => {
             if (!value) {
                 return $;
@@ -170,8 +177,9 @@ function attach() {
             $.record().insertElement(element).record();
             isFunction(then) && then.call($, value);
         });
-    };
-    $.insertLink = (hint, value, then) => {
+    });
+    !isFunction($$.insertLink) && ($$.insertLink = function (hint, value, then) {
+        let $ = this;
         return $.prompt(hint ?? 'URL:', value ?? (theLocation.protocol + '//'), value => {
             if (!value) {
                 return $;
@@ -184,14 +192,15 @@ function attach() {
             $.record().wrapElement(element).record();
             isFunction(then) && then.call($, value);
         });
-    };
-    $.peelElementBlock = (open, close, wrap) => {
+    });
+    !isFunction($$.peelElementBlock) && ($.peelElementBlock = function (open, close, wrap) {
         // TODO
         // return $.peelElement(open, close, wrap).trim("", "", false, false);
-    };
-    $.toggleCode = () => {};
-    $.toggleElementBlock = (open, close, wrap) => {
-        let {after, before, value} = $.$();
+    });
+    !isFunction($$.toggleCode) && ($$.toggleCode = function () {});
+    !isFunction($$.toggleElementBlock) && ($$.toggleElementBlock = function (open, close, wrap) {
+        let $ = this,
+            {after, before, value} = $.$();
         if (isString(open) && (m = toPattern('^' + tagStart(tagName()) + '$', "").exec(open))) {
             open = [m[1]];
         }
@@ -199,11 +208,12 @@ function attach() {
             return $[(toPattern('^' + tagStart(open[0]) + '[\\s\\S]*?' + tagEnd(open[0]) + '$', "").test(value) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
         }
         return $[(toPattern('^' + tagEnd(open[0]), "").test(after) && toPattern(tagStart(open[0]) + '$', "").test(before) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
-    };
-    $.toggleElements = (of, wrap) => {};
-    $.toggleElementsBlock = (of, wrap) => {
-        let count = toCount(of),
-            current = $.state.elementsCurrent;
+    });
+    !isFunction($$.toggleElements) && ($$.toggleElements = function (of, wrap) {});
+    !isFunction($$.toggleElementsBlock) && ($$.toggleElementsBlock = function (of, wrap) {
+        let $ = this,
+            count = toCount(of),
+            current = $.state.elementsCurrent.block || 0;
         of.forEach(v => v ? $.selectBlock().peelElement(v, true) : $);
         of[current] && $.wrapElementBlock(of[current], wrap);
         if (current >= count - 1) {
@@ -211,11 +221,12 @@ function attach() {
         } else {
             current += 1;
         }
-        return ($.state.elementsCurrent = current), $;
-    };
-    $.toggleQuote = () => {};
-    $.wrapElementBlock = (open, close, wrap) => {
-        let {after, before, value} = $.$(),
+        return ($.state.elementsCurrent.block = current), $;
+    });
+    !isFunction($$.toggleQuote) && ($$.toggleQuote = function () {});
+    !isFunction($$.wrapElementBlock) && ($$.wrapElementBlock = function (open, close, wrap) {
+        let $ = this,
+            {after, before, value} = $.$(),
             charIndent = $.state.source?.tab || $.state.tab || '\t',
             lineMatch = /^\s+/.exec(before.split('\n').pop()),
             lineMatchIndent = lineMatch && lineMatch[0] || "",
@@ -230,7 +241,7 @@ function attach() {
             $.wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent);
         }
         return $.wrapElement(open, close, wrap);
-    };
+    });
     return $.on('key.down', onKeyDown);
 }
 
@@ -238,4 +249,4 @@ function detach() {
     return this.off('key.down', onKeyDown);
 }
 
-export default {attach, detach};
+export default {attach, detach, name};

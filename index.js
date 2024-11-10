@@ -110,6 +110,8 @@
         if (isPattern(pattern)) {
             return pattern;
         }
+        // No need to escape `/` in the pattern string
+        pattern = pattern.replace(/\//g, '\\/');
         return new RegExp(pattern, isSet(opt) ? opt : 'g');
     };
     var offEventDefault = function offEventDefault(e) {
@@ -117,6 +119,8 @@
     };
     var CTRL_PREFIX = 'Control-';
     var SHIFT_PREFIX = 'Shift-';
+    var KEY_ENTER = 'Enter';
+    var name = 'TextEditor.SourceHTML';
     var elements = {
         "": ["", 'text goes here…'],
         a: ['a', 'link text goes here…', {
@@ -226,19 +230,19 @@
         if (isInteger(charIndent)) {
             charIndent = ' '.repeat(charIndent);
         }
-        if (CTRL_PREFIX + SHIFT_PREFIX + 'Enter' === keys) {
+        if (CTRL_PREFIX + SHIFT_PREFIX + KEY_ENTER === keys) {
             offEventDefault(e);
             return (before ? $.insertBlock("", -1) : $).toggleElementBlock(['p']);
         }
-        if (CTRL_PREFIX + 'Enter' === keys) {
+        if (CTRL_PREFIX + KEY_ENTER === keys) {
             offEventDefault(e);
             return (before ? $.insertBlock("", 1) : $).toggleElementBlock(['p']);
         }
-        if (SHIFT_PREFIX + 'Enter' === keys) {
+        if (SHIFT_PREFIX + KEY_ENTER === keys) {
             offEventDefault(e);
             return $.insertElement(['br', false]).insert('\n', -1, true).record();
         }
-        if ('Enter' === keys) {
+        if (KEY_ENTER === keys) {
             if (m = toPattern('^' + tagEnd('h[1-6]|p')).exec(after)) {
                 offEventDefault(e);
                 if (!value && toPattern(tagStart(m[1]) + '$', "").test(before) || value && elements[m[1]] && value === elements[m[1]][1]) {
@@ -265,13 +269,14 @@
     }
 
     function attach() {
-        var $ = this,
-            m;
+        var $ = this;
+        var $$ = $.constructor.prototype;
         $.state = fromStates({
             elements: elements,
-            elementsCurrent: 0
+            elementsCurrent: {}
         }, $.state);
-        $.insertElementBlock = function (value, mode, clear) {
+        !isFunction($$.insertElementBlock) && ($$.insertElementBlock = function (value, mode, clear) {
+            var $ = this;
             if (!isSet(mode)) {
                 mode = -1;
             }
@@ -292,8 +297,9 @@
                 return $.select(start - beforeCount).insertElement(value, mode).insert('\n', -1);
             }
             return $.select(start - beforeCount, end + afterCount).trim('\n', '\n').insertElement(value, mode, clear);
-        };
-        $.insertImage = function (hint, value, then) {
+        });
+        !isFunction($$.insertImage) && ($$.insertImage = function (hint, value, then) {
+            var $ = this;
             return $.prompt(hint != null ? hint : 'URL:', value != null ? value : theLocation.protocol + '//', function (value) {
                 var _$$state$elements$img, _element$, _element$2, _element$2$alt;
                 if (!value) {
@@ -309,8 +315,9 @@
                 $.record().insertElement(element).record();
                 isFunction(then) && then.call($, value);
             });
-        };
-        $.insertLink = function (hint, value, then) {
+        });
+        !isFunction($$.insertLink) && ($$.insertLink = function (hint, value, then) {
+            var $ = this;
             return $.prompt(hint != null ? hint : 'URL:', value != null ? value : theLocation.protocol + '//', function (value) {
                 var _$$state$elements$a, _element$3, _element$4;
                 if (!value) {
@@ -324,14 +331,15 @@
                 $.record().wrapElement(element).record();
                 isFunction(then) && then.call($, value);
             });
-        };
-        $.peelElementBlock = function (open, close, wrap) {
+        });
+        !isFunction($$.peelElementBlock) && ($.peelElementBlock = function (open, close, wrap) {
             // TODO
             // return $.peelElement(open, close, wrap).trim("", "", false, false);
-        };
-        $.toggleCode = function () {};
-        $.toggleElementBlock = function (open, close, wrap) {
-            var _$$$3 = $.$(),
+        });
+        !isFunction($$.toggleCode) && ($$.toggleCode = function () {});
+        !isFunction($$.toggleElementBlock) && ($$.toggleElementBlock = function (open, close, wrap) {
+            var $ = this,
+                _$$$3 = $.$(),
                 after = _$$$3.after,
                 before = _$$$3.before,
                 value = _$$$3.value;
@@ -342,11 +350,12 @@
                 return $[(toPattern('^' + tagStart(open[0]) + '[\\s\\S]*?' + tagEnd(open[0]) + '$', "").test(value) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
             }
             return $[(toPattern('^' + tagEnd(open[0]), "").test(after) && toPattern(tagStart(open[0]) + '$', "").test(before) ? 'peel' : 'wrap') + 'ElementBlock'](open, close, wrap);
-        };
-        $.toggleElements = function (of, wrap) {};
-        $.toggleElementsBlock = function (of, wrap) {
-            var count = toCount(of),
-                current = $.state.elementsCurrent;
+        });
+        !isFunction($$.toggleElements) && ($$.toggleElements = function (of, wrap) {});
+        !isFunction($$.toggleElementsBlock) && ($$.toggleElementsBlock = function (of, wrap) {
+            var $ = this,
+                count = toCount(of),
+                current = $.state.elementsCurrent.block || 0;
             of.forEach(function (v) {
                 return v ? $.selectBlock().peelElement(v, true) : $;
             });
@@ -356,12 +365,13 @@
             } else {
                 current += 1;
             }
-            return $.state.elementsCurrent = current, $;
-        };
-        $.toggleQuote = function () {};
-        $.wrapElementBlock = function (open, close, wrap) {
+            return $.state.elementsCurrent.block = current, $;
+        });
+        !isFunction($$.toggleQuote) && ($$.toggleQuote = function () {});
+        !isFunction($$.wrapElementBlock) && ($$.wrapElementBlock = function (open, close, wrap) {
             var _$$state$source2;
-            var _$$$4 = $.$(),
+            var $ = this,
+                _$$$4 = $.$(),
                 after = _$$$4.after,
                 before = _$$$4.before;
             _$$$4.value;
@@ -379,7 +389,7 @@
                 $.wrap('\n' + lineMatchIndent + charIndent, '\n' + lineMatchIndent);
             }
             return $.wrapElement(open, close, wrap);
-        };
+        });
         return $.on('key.down', onKeyDown);
     }
 
@@ -388,7 +398,8 @@
     }
     var index_js = {
         attach: attach,
-        detach: detach
+        detach: detach,
+        name: name
     };
     return index_js;
 }));
